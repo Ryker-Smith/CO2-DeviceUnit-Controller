@@ -84,7 +84,12 @@ public class MainActivity extends Form implements HandlesEventDispatching {
     JSONObject d1_JSON;
 
     protected void $define() {
-        this.Sizing("");
+        /* this next allows the app to use the full screen. In fact,
+        seemingly anything makes this work at 100% except "Fixed" and the this.Sizing
+        absent in the first place.
+         */
+        /* Cur seo isteach. Is cuma cén focal atá ann, níl gá leis */
+        this.Sizing("Responsive");
         Form a = this;
         Integer w = a.$form().Width();
         Integer h = a.$form().Height();
@@ -182,9 +187,6 @@ public class MainActivity extends Form implements HandlesEventDispatching {
         padMiddle.Row(0);
         padMiddle.Column(1);
         padMiddle.WidthPercent(1);
-
-//        Label padDivider2=new Label(Screen1);
-//        padDivider2.Height(PAD_DIVIDER_HEIGHT);
 
         Label padDivider3 = new Label(Screen1);
         padDivider3.Text("Activity");
