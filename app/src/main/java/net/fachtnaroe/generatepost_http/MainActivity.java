@@ -7,7 +7,6 @@ import com.google.appinventor.components.runtime.CheckBox;
 import com.google.appinventor.components.runtime.Component;
 import com.google.appinventor.components.runtime.EventDispatcher;
 import com.google.appinventor.components.runtime.Form;
-//import net.fachtnaroe.generatepost_http.fachtnaForm;
 import com.google.appinventor.components.runtime.HandlesEventDispatching;
 import com.google.appinventor.components.runtime.HorizontalArrangement;
 import com.google.appinventor.components.runtime.Label;
@@ -20,11 +19,9 @@ import com.google.appinventor.components.runtime.Web;
 
 import org.json.JSONException;
 import org.json.JSONObject;
-
 import java.util.ArrayList;
 import java.util.List;
-
-import static java.lang.String.valueOf;
+import static net.fachtnaroe.generatepost_http.GeneralApplicationSettings.EXTERNALLY_STORED_1;
 
 public class MainActivity extends Form implements HandlesEventDispatching {
 
@@ -48,7 +45,7 @@ public class MainActivity extends Form implements HandlesEventDispatching {
     private static final int max_SSID = 32;
     private static final int max_PSK = 64;
     private static final int max_DeviceName = 32;
-    private static final String URL_MAIN = "https:/t.fachtnaroe.net/qndco2";
+    private static final String URL_MAIN = EXTERNALLY_STORED_1;
     private static final String WIFI_PSK = "password";
     private static final String WIFI_SSID = "someSSID";
     private static final int BACKGROUND_COLOR = 0xF085abc1;
