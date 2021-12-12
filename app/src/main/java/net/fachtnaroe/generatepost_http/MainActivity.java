@@ -48,6 +48,10 @@ public class MainActivity extends Form implements HandlesEventDispatching {
     private static final String URL_MAIN = EXTERNALLY_STORED_1;
     private static final String WIFI_PSK = "password";
     private static final String WIFI_SSID = "someSSID";
+    /* Tá ná dáthanna déanta mar an gcéanna le HTML, ach le FF ar
+    dtús air. Sin uimhir ó 0-FF ar cé comh tréshoilseacht an rud.
+    Cur 0x ós comhair sin chun stad-riamh-fhocail i Hexadecimal a dhénamh agus sabháil */
+    /* How to use HTML for the colours */
     private static final int BACKGROUND_COLOR = 0xF085abc1;
     private static final int BUTTON_COLOR = 0xFF103449;
     private static final int SECTION_TOP_COLOR = 0xFF000000;
@@ -257,7 +261,6 @@ public class MainActivity extends Form implements HandlesEventDispatching {
                 activity = "";
                 if (!txt_DeviceName.Text().equals("")) {
                     relayServerConnection.Url(URL_MAIN);
-
                     relayServerConnection.Get();
                     feedbackBox.Text(messages("<b>To:</b> " + sensorUnitConnection.Url()));
                     feedbackBox.Text(messages("<br>\n<b>Sending:</b> " ));
