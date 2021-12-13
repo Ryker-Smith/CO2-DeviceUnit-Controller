@@ -1,6 +1,7 @@
 package net.fachtnaroe.generatepost_http;
 
 import android.util.Log;
+import android.view.View;
 
 import com.google.appinventor.components.runtime.Button;
 import com.google.appinventor.components.runtime.CheckBox;
@@ -28,18 +29,21 @@ public class MainActivity extends Form implements HandlesEventDispatching {
     private
     VerticalScrollArrangement Screen1;
     HorizontalArrangement SmallControls;
-    TextBox txt_SSID, txt_PSK, txt_DeviceName;
-    Label lbl_SSID, lbl_PSK, lbl_DeviceName;
-    Button goButton, findDeviceButton;
-    Web sensorUnitConnection;
-    Web relayServerConnection;
+    TextBox txt_SSID, txt_PSK, txt_DeviceName, txt_IPv4;
+    Label lbl_SSID, lbl_PSK, lbl_DeviceName, lbl_IPv4, padDivider3;
+    Button configureDeviceButton, findDeviceButton, connectLocalDeviceButton, testLocalDeviceButton;
+    Web sensorUnitConnection, relayServerConnection, testConnection;
     Label feedbackBox;
     Notifier notifier_Messages;
     CheckBox chk_Active;
     TextBox txt_Status, txt_Attempts;
     ArrayList myHeaders;
     TableArrangement NetworkSetup;
-    String activity = "";
+    String  activity = "",
+            d1_IPv4="waiting",
+            config_Proto="http://",
+            config_Port=""; // could be eg :8080 etc
+
     int programProgress = 0;
 
     private static final int max_SSID = 32;
@@ -48,14 +52,15 @@ public class MainActivity extends Form implements HandlesEventDispatching {
     private static final String URL_MAIN = EXTERNALLY_STORED_1;
     private static final String WIFI_PSK = "password";
     private static final String WIFI_SSID = "someSSID";
+    private static final String NAME_DEFAULT_DEVICE="TCFE-CO2-2B-34";
     /* Tá ná dáthanna déanta mar an gcéanna le HTML, ach le FF ar
     dtús air. Sin uimhir ó 0-FF ar cé comh tréshoilseacht an rud.
     Cur 0x ós comhair sin chun stad-riamh-fhocail i Hexadecimal a dhénamh agus sabháil */
     /* How to use HTML for the colours */
-    private static final int BACKGROUND_COLOR = 0xF085abc1;
+    private static final int BACKGROUND_COLOR = 0xFF477c9b;
     private static final int BUTTON_COLOR = 0xFF103449;
     private static final int SECTION_TOP_COLOR = 0xFF000000;
-    private static final int SECTION_BG_COLOR = 0xFFdbdef3;
+    private static final int SECTION_BG_COLOR = 0xFF477c9b;
     private static final int TEXTBOX_COLOR = 0xFF000000;
     private static final int TEXTBOX_BACKGROUND_COLOR = 0xFFdbdde6;
     private static final int SIZE_LABELS_TXT = 18;
@@ -90,6 +95,8 @@ public class MainActivity extends Form implements HandlesEventDispatching {
          */
         /* Cur seo isteach. Is cuma cén focal atá ann, níl gá leis */
         this.Sizing("Responsive");
+        this.BackgroundColor(BACKGROUND_COLOR);
+
         Form a = this;
         Integer w = a.$form().Width();
         Integer h = a.$form().Height();
@@ -99,6 +106,9 @@ public class MainActivity extends Form implements HandlesEventDispatching {
         Screen1.AlignHorizontal(Component.ALIGNMENT_NORMAL);
         Screen1.AlignVertical(Component.ALIGNMENT_CENTER);
         Screen1.BackgroundColor(BACKGROUND_COLOR);
+
+        View v1=this.getWindow().getDecorView().getRootView();
+        v1.setSystemUiVisibility(View.SYSTEM_UI_FLAG_FULLSCREEN);
 
         Label heading = new Label(Screen1);
         heading.Width(w);
@@ -162,38 +172,65 @@ public class MainActivity extends Form implements HandlesEventDispatching {
         Label padDivider1 = new Label(Screen1);
         padDivider1.Height(PAD_DIVIDER_HEIGHT);
 
-        NetworkSetup = new TableArrangement(Screen1);
+        HorizontalArrangement tableEnclosure=new HorizontalArrangement(Screen1);
+        tableEnclosure.WidthPercent(100);
+        tableEnclosure.BackgroundColor(BACKGROUND_COLOR);
+
+        NetworkSetup = new TableArrangement(tableEnclosure);
         NetworkSetup.Rows(2);
-        NetworkSetup.Columns(2);
+        NetworkSetup.Columns(3);
         NetworkSetup.Width(w);
 
         lbl_DeviceName = new Label(NetworkSetup);
-        lbl_DeviceName.Row(1);
+        lbl_DeviceName.Row(0);
         lbl_DeviceName.Column(0);
         lbl_DeviceName.FontSize(SIZE_LABELS_TXT);
         lbl_DeviceName.Text("Device Name");
         lbl_DeviceName.TextAlignment(Component.ALIGNMENT_OPPOSITE);
         lbl_DeviceName.FontTypeface(FONT_NUMBER);
+        lbl_DeviceName.Visible(true);
+        lbl_DeviceName.BackgroundColor(BACKGROUND_COLOR);
         txt_DeviceName = new TextBox(NetworkSetup);
         txt_DeviceName.FontSize(SIZE_LABELS_TXT);
-        txt_DeviceName.Row(1);
-        txt_DeviceName.Column(1);
+        txt_DeviceName.Row(0);
+        txt_DeviceName.Column(2);
         txt_DeviceName.TextAlignment(Component.ALIGNMENT_NORMAL);
         txt_DeviceName.BackgroundColor(TEXTBOX_BACKGROUND_COLOR);
         txt_DeviceName.FontTypeface(FONT_NUMBER_FIXED);
-        txt_DeviceName.Text("TCFE-CO2-12-34");
+        txt_DeviceName.Text(NAME_DEFAULT_DEVICE);
+        txt_DeviceName.Visible(true);
+        txt_DeviceName.WidthPercent(100);
+
+        lbl_IPv4 = new Label(NetworkSetup);
+        lbl_IPv4.Row(1);
+        lbl_IPv4.Column(0);
+        lbl_IPv4.FontSize(SIZE_LABELS_TXT);
+        lbl_IPv4.Text("IP address");
+        lbl_IPv4.TextAlignment(Component.ALIGNMENT_OPPOSITE);
+        lbl_IPv4.FontTypeface(FONT_NUMBER);
+        lbl_IPv4.Visible(false);
+        txt_IPv4 = new TextBox(NetworkSetup);
+        txt_IPv4.FontSize(SIZE_LABELS_TXT);
+        txt_IPv4.Row(1);
+        txt_IPv4.Column(2);
+        txt_IPv4.TextAlignment(Component.ALIGNMENT_NORMAL);
+        txt_IPv4.BackgroundColor(TEXTBOX_BACKGROUND_COLOR);
+        txt_IPv4.FontTypeface(FONT_NUMBER_FIXED);
+        txt_IPv4.Visible(false);
 
         Label padMiddle = new Label(NetworkSetup);
         padMiddle.Row(0);
         padMiddle.Column(1);
         padMiddle.WidthPercent(1);
 
-        Label padDivider3 = new Label(Screen1);
+        padDivider3 = new Label(Screen1);
         padDivider3.Text("Activity");
+        padDivider3.FontBold(false);
         padDivider3.WidthPercent(100);
         padDivider3.TextAlignment(Component.ALIGNMENT_CENTER);
         padDivider3.FontTypeface(FONT_NUMBER);
         padDivider3.FontSize(SIZE_LABELS_TXT);
+
         feedbackBox = new Label(Screen1);
         feedbackBox.Width(w);
         feedbackBox.HeightPercent(50);
@@ -201,28 +238,40 @@ public class MainActivity extends Form implements HandlesEventDispatching {
         feedbackBox.FontSize(SIZE_LABELS_TXT);
         feedbackBox.FontTypeface(FONT_NUMBER_FIXED);
         feedbackBox.BackgroundColor(TEXTBOX_BACKGROUND_COLOR);
+
         Label padDivider4 = new Label(Screen1);
         padDivider4.Height(PAD_DIVIDER_HEIGHT);
 
         findDeviceButton = new Button(Screen1);
-        findDeviceButton.Text("Press to update");
+        findDeviceButton.Text("Find my device");
         findDeviceButton.FontSize(SIZE_LABELS_TXT);
         findDeviceButton.FontTypeface(FONT_NUMBER);
         findDeviceButton.WidthPercent(100);
         findDeviceButton.BackgroundColor(BUTTON_COLOR);
         findDeviceButton.TextColor(Component.COLOR_WHITE);
+        findDeviceButton.Visible(true);
 
-        goButton = new Button(Screen1);
-        goButton.Text("Press to update");
-        goButton.FontSize(SIZE_LABELS_TXT);
-        goButton.FontTypeface(FONT_NUMBER);
-        goButton.WidthPercent(100);
-        goButton.BackgroundColor(BUTTON_COLOR);
-        goButton.TextColor(Component.COLOR_WHITE);
-        goButton.Visible(false);
+        connectLocalDeviceButton = new Button(Screen1);
+        connectLocalDeviceButton.Text("Connect to device");
+        connectLocalDeviceButton.FontSize(SIZE_LABELS_TXT);
+        connectLocalDeviceButton.FontTypeface(FONT_NUMBER);
+        connectLocalDeviceButton.WidthPercent(100);
+        connectLocalDeviceButton.BackgroundColor(BUTTON_COLOR);
+        connectLocalDeviceButton.TextColor(Component.COLOR_WHITE);
+        connectLocalDeviceButton.Visible(false);
+
+        configureDeviceButton = new Button(Screen1);
+        configureDeviceButton.Text("Press to update");
+        configureDeviceButton.FontSize(SIZE_LABELS_TXT);
+        configureDeviceButton.FontTypeface(FONT_NUMBER);
+        configureDeviceButton.WidthPercent(100);
+        configureDeviceButton.BackgroundColor(BUTTON_COLOR);
+        configureDeviceButton.TextColor(Component.COLOR_WHITE);
+        configureDeviceButton.Visible(false);
 
         sensorUnitConnection = new Web(Screen1);
         relayServerConnection = new Web(Screen1);
+        testConnection = new Web(Screen1);
         notifier_Messages = new Notifier(Screen1);
 
         EventDispatcher.registerEventForDelegation(this, formName, "Click");
@@ -236,40 +285,65 @@ public class MainActivity extends Form implements HandlesEventDispatching {
         if (eventName.equals("BackPressed")) {
             // this would be a great place to do something useful
             return true;
-        } else if (eventName.equals("LostFocus")) {
+        }
+        else if (eventName.equals("LostFocus")) {
             if (component.equals(txt_Status)) {
                 int temp = Integer.valueOf(txt_Attempts.Text());
                 if ((temp != d1_OUTOFBOX) && (temp != d1_ATTEMPTING) && (temp != d1_CONFIGURED)) {
                     txt_Status.Text("0");
                 }
-            } else if (component.equals(txt_Attempts)) {
+            }
+            else if (component.equals(txt_Attempts)) {
                 int temp = Integer.valueOf(txt_Attempts.Text());
                 if ((temp < d1_MINATTEMPTS) || (temp > d1_MAXATTEMPTS)) {
                     txt_Attempts.Text("1");
                 }
             }
             return true;
-        } else if (eventName.equals("GotText")) {
-            if (component.equals(relayServerConnection)) {
-
-            } else if (component.equals(sensorUnitConnection)) {
+        }
+        else if (eventName.equals("GotText")) {
+            if (component.equals(testConnection)) {
                 String status = params[1].toString();
                 String textOfResponse = (String) params[3];
                 handler_Response(component, status, textOfResponse);
                 return true;
             }
-        } else if (eventName.equals("Click")) {
-            if (component.equals(findDeviceButton)) {
+            else if (component.equals(relayServerConnection)) {
+                String status = params[1].toString();
+                String textOfResponse = (String) params[3];
+                handler_Response(component, status, textOfResponse);
+                return true;
+            }
+            else if (component.equals(sensorUnitConnection)) {
+                    String status = params[1].toString();
+                    String textOfResponse = (String) params[3];
+                    handler_Response(component, status, textOfResponse);
+                    return true;
+                }
+        }
+        else if (eventName.equals("Click")) {
+            if (component.equals(connectLocalDeviceButton)) {
+                testConnection.Url(config_Proto+txt_IPv4.Text()+config_Port);
+                testConnection.Get();
+                padDivider3.FontBold(true);
+                return true;
+            }
+            else if (component.equals(findDeviceButton)) {
                 activity = "";
                 if (!txt_DeviceName.Text().equals("")) {
-                    relayServerConnection.Url(URL_MAIN);
+                    relayServerConnection.Url(makeGetString_IPv4());
                     relayServerConnection.Get();
-                    feedbackBox.Text(messages("<b>To:</b> " + sensorUnitConnection.Url()));
-                    feedbackBox.Text(messages("<br>\n<b>Sending:</b> " ));
+                    padDivider3.FontBold(true);
+                    lbl_IPv4.Visible(true);
+                    txt_IPv4.Visible(true);
+                    feedbackBox.Text(messages("<b>To:</b> " + relayServerConnection.Url()));
+                    feedbackBox.Text(messages("<br>\n<b>Sending</b> " ));
                 }
                 return true;
-            } else if (component.equals(goButton)) {
+            }
+            else if (component.equals(configureDeviceButton)) {
                 activity = "";
+                padDivider3.FontBold(true);
                 d1_Data = makeConfig();
                 if (config2JSON(d1_Data)) {
                     sensorUnitConnection.Url(URL_MAIN);
@@ -284,10 +358,10 @@ public class MainActivity extends Form implements HandlesEventDispatching {
         return false;
     }
     String makeGetString_IPv4(){
-        String test1 = "POSTDATA={\"device\":\"";
+        String test1 = URL_MAIN+"?device=";
                test1+= txt_DeviceName.Text();
-               test1+="\",";
-               test1+="\"sensor\":\"IPv4\"}";
+               test1+="&";
+               test1+="sensor=IPv4";
         return test1;
     }
 
@@ -376,17 +450,38 @@ public class MainActivity extends Form implements HandlesEventDispatching {
     }
 
     void handler_Response(Component c, String status, String textOfResponse){
+        padDivider3.FontBold(false);
+        feedbackBox.Text(messages("<br><b>Received:</b> " + textOfResponse));
         if (status.equals("200") ) try {
             JSONObject parser = new JSONObject(textOfResponse);
-                feedbackBox.Text(
-                        messages( "<br><b>Received:</b> " +  textOfResponse)
-                );
+            if (parser.getString("Status").equals("OK")) {
+                if (c.equals(relayServerConnection)) {
+                    if (parser.getString("sensor").equals("IPv4")) {
+                        if (!parser.getString("value").equals("")) {
+                            d1_IPv4 = parser.getString("value");
+                            txt_IPv4.Text(d1_IPv4);
+                            connectLocalDeviceButton.Visible(true);
+                        }
+                    }
+                }
+                else  if (c.equals(testConnection)) {
+                    if (parser.getString("sensor").equals("IPv4")) {
+                        if (!parser.getString("value").equals("")) {
+                            d1_IPv4 = parser.getString("value");
+                            txt_IPv4.Text(d1_IPv4);
+                            enlargeTable();
+                            configureDeviceButton.Visible(true);
+                        }
+                    }
+                }
+            }
         }
         catch (JSONException e) {
-            notifier_Messages.ShowAlert("android JSON exception (" + textOfResponse + ")");
+            notifier_Messages.ShowAlert("JSON Error 422");
             dbg("android JSON exception (" + textOfResponse + ")");
         }
         else {
+            feedbackBox.Text( messages( "Error status code is "+status) );
             dbg("Status is "+status);
         }
     }

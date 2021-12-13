@@ -8,6 +8,8 @@
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
     <color name="colorPrimary">#FF000000</color>
-    <color name="colorPrimaryDark">#FFFFFFFF</color>
+    <color name="colorPrimaryDark">#FF477c9b</color>
+    <color name="PrimaryColorDark">#FF477c9b</color>
     <color name="colorAccent">#FFFF0000</color>
+    <color name="statusBarColor">#FF477c9b</color>
 </resources>
