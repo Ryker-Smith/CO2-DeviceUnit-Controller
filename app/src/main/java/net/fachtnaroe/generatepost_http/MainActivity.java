@@ -35,16 +35,19 @@ public class MainActivity extends Form implements HandlesEventDispatching {
     Web sensorUnitConnection, relayServerConnection, testConnection;
     Label feedbackBox;
     Notifier notifier_Messages;
-    CheckBox chk_Active;
+//    CheckBox chk_Active;
+    TextBox txt_active;
     TextBox txt_Status, txt_Attempts;
     ArrayList myHeaders;
     TableArrangement NetworkSetup;
     String  activity = "",
             d1_IPv4="waiting",
             config_Proto="http://",
-            config_Port=":80"; // could be eg :8080 etc
-
+            config_Port=":80", // could be eg :8080 etc
+            config_Read ="/getconfig",
+            config_Write ="/setconfig";
     int programProgress = 0;
+    boolean d1_ModeWrite=false;
 
     private static final int max_SSID = 32;
     private static final int max_PSK = 64;
@@ -59,6 +62,7 @@ public class MainActivity extends Form implements HandlesEventDispatching {
     /* How to use HTML for the colours */
     private static final int BACKGROUND_COLOR = 0xFF477c9b;
     private static final int BUTTON_COLOR = 0xFF103449;
+    private static final int HEADING_COLOR = 0xFFe0e0ff;
     private static final int SECTION_TOP_COLOR = 0xFF000000;
     private static final int SECTION_BG_COLOR = 0xFF477c9b;
     private static final int TEXTBOX_COLOR = 0xFF000000;
@@ -102,48 +106,67 @@ public class MainActivity extends Form implements HandlesEventDispatching {
         Integer w = a.$form().Width();
         Integer h = a.$form().Height();
         Screen1 = new VerticalScrollArrangement(this);
+        // each component, listed in order
+        Label heading = new Label(Screen1);
+        SmallControls = new HorizontalArrangement(Screen1);
+        Label lblActive = new Label(SmallControls);
+        txt_active = new TextBox(SmallControls);
+        Label lblStatus = new Label(SmallControls);
+        txt_Status = new TextBox(SmallControls);
+        Label lblAttempts = new Label(SmallControls);
+        txt_Attempts = new TextBox(SmallControls);
+        Label padDivider1 = new Label(Screen1);
+        HorizontalArrangement tableEnclosure=new HorizontalArrangement(Screen1);
+        NetworkSetup = new TableArrangement(tableEnclosure);
+        lbl_DeviceName = new Label(NetworkSetup);
+        txt_DeviceName = new TextBox(NetworkSetup);
+        lbl_IPv4 = new Label(NetworkSetup);
+        Label padMiddle = new Label(NetworkSetup);
+        padDivider3 = new Label(Screen1);
+        Label padDivider4 = new Label(Screen1);
+        feedbackBox = new Label(Screen1);
+        findDeviceButton = new Button(Screen1);
+        connectLocalDeviceButton = new Button(Screen1);
+        configureDeviceButton = new Button(Screen1);
+        sensorUnitConnection = new Web(Screen1);
+        relayServerConnection = new Web(Screen1);
+        testConnection = new Web(Screen1);
+        notifier_Messages = new Notifier(Screen1);
+
+//        View v1=this.getWindow().getDecorView().getRootView();
+//        v1.setSystemUiVisibility(View.SYSTEM_UI_FLAG_FULLSCREEN);
+        // now, how every component looks:
         Screen1.Width(w);
         Screen1.Height(h);
         Screen1.AlignHorizontal(Component.ALIGNMENT_NORMAL);
         Screen1.AlignVertical(Component.ALIGNMENT_CENTER);
         Screen1.BackgroundColor(BACKGROUND_COLOR);
-
-        View v1=this.getWindow().getDecorView().getRootView();
-        v1.setSystemUiVisibility(View.SYSTEM_UI_FLAG_FULLSCREEN);
-
-        Label heading = new Label(Screen1);
         heading.Width(w);
         heading.Height(SIZE_TOP_BAR);
-        heading.Text("<b>Update EEPROM Settings</b>");
+        heading.Text("<h2><b>Update EEPROM Settings</b></h2>");
         heading.TextAlignment(Component.ALIGNMENT_CENTER);
         heading.FontSize(SIZE_LABELS_TXT + 5);
         heading.HTMLFormat(true);
+        heading.TextColor(HEADING_COLOR);
 
-        SmallControls = new HorizontalArrangement(Screen1);
         SmallControls.Visible(false);
         SmallControls.Width(w);
         SmallControls.Height(SIZE_TOP_BAR);
         SmallControls.AlignVertical(Component.ALIGNMENT_CENTER);
         SmallControls.BackgroundColor(BUTTON_COLOR);
-
-        Label lblActive = new Label(SmallControls);
         lblActive.Text("Is active ");
         lblActive.FontTypeface(FONT_NUMBER);
         lblActive.FontSize(SIZE_SMALL_LABELS_TXT);
         lblActive.TextColor(Component.COLOR_WHITE);
         lblActive.HeightPercent(100);
-
-        chk_Active = new CheckBox(SmallControls);
-        chk_Active.BackgroundColor(TEXTBOX_BACKGROUND_COLOR);
-        chk_Active.Height(SIZE_TOP_BAR);
-
-        Label lblStatus = new Label(SmallControls);
+        txt_active.BackgroundColor(TEXTBOX_BACKGROUND_COLOR);
+        txt_active.Height(SIZE_TOP_BAR);
+        txt_active.Enabled(false);
         lblStatus.Text("Status (0/2/4) ");
         lblStatus.FontTypeface(FONT_NUMBER);
         lblStatus.FontSize(SIZE_SMALL_LABELS_TXT);
         lblStatus.TextColor(Component.COLOR_WHITE);
         lblStatus.Height(SIZE_TOP_BAR);
-        txt_Status = new TextBox(SmallControls);
         txt_Status.WidthPercent(10);
         txt_Status.BackgroundColor(TEXTBOX_BACKGROUND_COLOR);
         txt_Status.Height(SIZE_TOP_BAR);
@@ -152,15 +175,11 @@ public class MainActivity extends Form implements HandlesEventDispatching {
         txt_Status.Text("0");
         txt_Status.NumbersOnly(true);
         txt_Status.FontSize(SIZE_LABELS_TXT);
-
-        Label lblAttempts = new Label(SmallControls);
         lblAttempts.Text("Retry attempts ");
         lblAttempts.FontTypeface(FONT_NUMBER);
         lblAttempts.FontSize(SIZE_SMALL_LABELS_TXT);
         lblAttempts.TextColor(Component.COLOR_WHITE);
         lblAttempts.HeightPercent(100);
-
-        txt_Attempts = new TextBox(SmallControls);
         txt_Attempts.WidthPercent(10);
         txt_Attempts.BackgroundColor(TEXTBOX_BACKGROUND_COLOR);
         txt_Attempts.Height(SIZE_TOP_BAR);
@@ -170,19 +189,12 @@ public class MainActivity extends Form implements HandlesEventDispatching {
         txt_Attempts.NumbersOnly(true);
         txt_Attempts.FontSize(SIZE_LABELS_TXT);
 
-        Label padDivider1 = new Label(Screen1);
         padDivider1.Height(PAD_DIVIDER_HEIGHT);
-
-        HorizontalArrangement tableEnclosure=new HorizontalArrangement(Screen1);
         tableEnclosure.WidthPercent(100);
         tableEnclosure.BackgroundColor(BACKGROUND_COLOR);
-
-        NetworkSetup = new TableArrangement(tableEnclosure);
         NetworkSetup.Rows(2);
         NetworkSetup.Columns(3);
         NetworkSetup.Width(w);
-
-        lbl_DeviceName = new Label(NetworkSetup);
         lbl_DeviceName.Row(0);
         lbl_DeviceName.Column(0);
         lbl_DeviceName.FontSize(SIZE_LABELS_TXT);
@@ -191,7 +203,6 @@ public class MainActivity extends Form implements HandlesEventDispatching {
         lbl_DeviceName.FontTypeface(FONT_NUMBER);
         lbl_DeviceName.Visible(true);
         lbl_DeviceName.BackgroundColor(BACKGROUND_COLOR);
-        txt_DeviceName = new TextBox(NetworkSetup);
         txt_DeviceName.FontSize(SIZE_LABELS_TXT);
         txt_DeviceName.Row(0);
         txt_DeviceName.Column(2);
@@ -201,8 +212,6 @@ public class MainActivity extends Form implements HandlesEventDispatching {
         txt_DeviceName.Text(NAME_DEFAULT_DEVICE);
         txt_DeviceName.Visible(true);
         txt_DeviceName.WidthPercent(100);
-
-        lbl_IPv4 = new Label(NetworkSetup);
         lbl_IPv4.Row(1);
         lbl_IPv4.Column(0);
         lbl_IPv4.FontSize(SIZE_LABELS_TXT);
@@ -219,20 +228,15 @@ public class MainActivity extends Form implements HandlesEventDispatching {
         txt_IPv4.FontTypeface(FONT_NUMBER_FIXED);
         txt_IPv4.Visible(false);
 
-        Label padMiddle = new Label(NetworkSetup);
         padMiddle.Row(0);
         padMiddle.Column(1);
         padMiddle.WidthPercent(1);
-
-        padDivider3 = new Label(Screen1);
         padDivider3.Text("Activity");
         padDivider3.FontBold(false);
         padDivider3.WidthPercent(100);
         padDivider3.TextAlignment(Component.ALIGNMENT_CENTER);
         padDivider3.FontTypeface(FONT_NUMBER);
         padDivider3.FontSize(SIZE_LABELS_TXT);
-
-        feedbackBox = new Label(Screen1);
         feedbackBox.Width(w);
         feedbackBox.HeightPercent(50);
         feedbackBox.HTMLFormat(true);
@@ -240,10 +244,7 @@ public class MainActivity extends Form implements HandlesEventDispatching {
         feedbackBox.FontTypeface(FONT_NUMBER_FIXED);
         feedbackBox.BackgroundColor(TEXTBOX_BACKGROUND_COLOR);
 
-        Label padDivider4 = new Label(Screen1);
         padDivider4.Height(PAD_DIVIDER_HEIGHT);
-
-        findDeviceButton = new Button(Screen1);
         findDeviceButton.Text("Find my device");
         findDeviceButton.FontSize(SIZE_LABELS_TXT);
         findDeviceButton.FontTypeface(FONT_NUMBER);
@@ -251,8 +252,7 @@ public class MainActivity extends Form implements HandlesEventDispatching {
         findDeviceButton.BackgroundColor(BUTTON_COLOR);
         findDeviceButton.TextColor(Component.COLOR_WHITE);
         findDeviceButton.Visible(true);
-
-        connectLocalDeviceButton = new Button(Screen1);
+        findDeviceButton.HeightPercent(8);
         connectLocalDeviceButton.Text("Connect to device");
         connectLocalDeviceButton.FontSize(SIZE_LABELS_TXT);
         connectLocalDeviceButton.FontTypeface(FONT_NUMBER);
@@ -260,9 +260,7 @@ public class MainActivity extends Form implements HandlesEventDispatching {
         connectLocalDeviceButton.BackgroundColor(BUTTON_COLOR);
         connectLocalDeviceButton.TextColor(Component.COLOR_WHITE);
         connectLocalDeviceButton.Visible(false);
-
-        configureDeviceButton = new Button(Screen1);
-        configureDeviceButton.Text("Press to update");
+        configureDeviceButton.Text("Press to Get config");
         configureDeviceButton.FontSize(SIZE_LABELS_TXT);
         configureDeviceButton.FontTypeface(FONT_NUMBER);
         configureDeviceButton.WidthPercent(100);
@@ -270,18 +268,14 @@ public class MainActivity extends Form implements HandlesEventDispatching {
         configureDeviceButton.TextColor(Component.COLOR_WHITE);
         configureDeviceButton.Visible(false);
 
-        sensorUnitConnection = new Web(Screen1);
-        relayServerConnection = new Web(Screen1);
-        testConnection = new Web(Screen1);
-        notifier_Messages = new Notifier(Screen1);
-
+        // now, the events the components can respond to
         EventDispatcher.registerEventForDelegation(this, formName, "Click");
         EventDispatcher.registerEventForDelegation(this, formName, "GotText");
         EventDispatcher.registerEventForDelegation(this, formName, "LostFocus");
     }
 
     public boolean dispatchEvent(Component component, String componentName, String eventName, Object[] params) {
-
+        // finally, here is how the events are responded to
         dbg("dispatchEvent: " + formName + " [" +component.toString() + "] [" + componentName + "] " + eventName);
         if (eventName.equals("BackPressed")) {
             // this would be a great place to do something useful
@@ -316,6 +310,8 @@ public class MainActivity extends Form implements HandlesEventDispatching {
                 return true;
             }
             else if (component.equals(sensorUnitConnection)) {
+//                    dbg(params[0].toString());
+//                    dbg(params[2].toString());
                     String status = params[1].toString();
                     String textOfResponse = (String) params[3];
                     handler_Response(component, status, textOfResponse);
@@ -324,10 +320,11 @@ public class MainActivity extends Form implements HandlesEventDispatching {
         }
         else if (eventName.equals("Click")) {
             if (component.equals(connectLocalDeviceButton)) {
+                activity="";
                 // once "Find my device" [by name] has completed there should be an IP address available
                 // Is "browse local network" an Android config requirement
                 testConnection.Url( config_Proto + txt_IPv4.Text() + config_Port);
-                feedbackBox.Text( messages("<br>\n<b>Connection attempt to:</b> "+testConnection.Url()));
+                feedbackBox.Text( messages("<b>Connection attempt to:</b> "+testConnection.Url()));
                 dbg("Connection attempt to: "+testConnection.Url());
                 testConnection.Get();
                 dbg("A");
@@ -341,22 +338,30 @@ public class MainActivity extends Form implements HandlesEventDispatching {
                     padDivider3.FontBold(true);
                     lbl_IPv4.Visible(true);
                     txt_IPv4.Visible(true);
+                    feedbackBox.Text(messages("<b>Sending</b> " ));
                     feedbackBox.Text(messages("<b>To:</b> " + relayServerConnection.Url()));
-                    feedbackBox.Text(messages("<br>\n<b>Sending</b> " ));
                     relayServerConnection.Get();
                 }
                 return true;
             }
             else if (component.equals(configureDeviceButton)) {
-                activity = "";
-                padDivider3.FontBold(true);
-                d1_Data = makeConfig();
-                if (config2JSON(d1_Data)) {
-                    sensorUnitConnection.Url(URL_MAIN);
-                    sensorUnitConnection.PostText(d1_JSON.toString());
-                    sensorUnitConnection.RequestHeaders(myHeaders());
-                    feedbackBox.Text(messages("<b>To:</b> " + sensorUnitConnection.Url()));
-                    feedbackBox.Text(messages("<br>\n<b>Sending:</b> " + d1_JSON));
+                if (d1_ModeWrite) {
+                    activity = "";
+                    padDivider3.FontBold(true);
+                    d1_Data = makeConfig();
+                    if (config2JSON(d1_Data)) {
+                        sensorUnitConnection.Url( config_Proto + txt_IPv4.Text() + config_Port + config_Write);
+                        sensorUnitConnection.PostText(d1_JSON.toString());
+                        sensorUnitConnection.RequestHeaders(myHeaders());
+                        feedbackBox.Text(messages("<b>Sending:</b> " + d1_JSON));
+                        feedbackBox.Text(messages("<b>To:</b> " + sensorUnitConnection.Url()));
+                    }
+                }
+                else {
+                    activity="";
+                    padDivider3.FontBold(true);
+                    sensorUnitConnection.Url( config_Proto + txt_IPv4.Text() + config_Port + config_Read);
+                    sensorUnitConnection.Get();
                 }
                 return true;
             }
@@ -373,12 +378,12 @@ public class MainActivity extends Form implements HandlesEventDispatching {
 
     eepromStruct makeConfig(){
         d1_Data=new eepromStruct();
-        if (chk_Active.Checked()) {
-            d1_Data.active = 'Y';
-        }
-        else {
-            d1_Data.active='N';
-        }
+//        if (chk_Active.Checked()) {
+//            d1_Data.active = 'Y';
+//        }
+//        else {
+//            d1_Data.active='N';
+//        }
         int v1= Integer.valueOf(txt_Status.Text());
         d1_Data.config_Status= (byte) v1;
         int v2= Integer.valueOf(txt_Attempts.Text());
@@ -409,15 +414,14 @@ public class MainActivity extends Form implements HandlesEventDispatching {
         NetworkSetup.Columns(4);
         lbl_SSID= new Label(NetworkSetup);
         lbl_SSID.Text("SSID");
-        lbl_SSID.Visible(false);
+        lbl_SSID.Visible(true);
         lbl_SSID.Row(2);
         lbl_SSID.Column(0);
-        lbl_SSID.WidthPercent(35);
         lbl_SSID.TextAlignment(Component.ALIGNMENT_OPPOSITE);
         lbl_SSID.FontSize(SIZE_LABELS_TXT);
         lbl_SSID.FontTypeface(FONT_NUMBER);
         txt_SSID =new TextBox(NetworkSetup);
-        txt_SSID.Visible(false);
+        txt_SSID.Visible(true);
         txt_SSID.FontSize(SIZE_LABELS_TXT);
         txt_SSID.Row(2);
         txt_SSID.Column(2);
@@ -428,20 +432,23 @@ public class MainActivity extends Form implements HandlesEventDispatching {
         txt_SSID.Text(WIFI_SSID);
 
         lbl_PSK = new Label (NetworkSetup);
-        lbl_PSK.Row(2);
+        lbl_PSK.Row(3);
         lbl_PSK.Column(0);
         lbl_PSK.TextAlignment(Component.ALIGNMENT_OPPOSITE);
         lbl_PSK.FontSize(SIZE_LABELS_TXT);
         lbl_PSK.Text("PSK");
         lbl_PSK.FontTypeface(FONT_NUMBER);
+        lbl_PSK.Visible(true);
         txt_PSK =new TextBox(NetworkSetup);
         txt_PSK.FontSize(SIZE_LABELS_TXT);
-        txt_PSK.Row(2);
+        txt_PSK.Row(3);
         txt_PSK.Column(2);
         txt_PSK.TextAlignment(Component.ALIGNMENT_NORMAL);
         txt_PSK.BackgroundColor(TEXTBOX_BACKGROUND_COLOR);
         txt_PSK.FontTypeface(FONT_NUMBER_FIXED);
         txt_PSK.Text(WIFI_PSK);
+        txt_PSK.Visible(true);
+        SmallControls.Visible(true);
     }
 
     String messages(String addition) {
@@ -457,11 +464,10 @@ public class MainActivity extends Form implements HandlesEventDispatching {
 
     void handler_Response(Component c, String status, String textOfResponse){
         padDivider3.FontBold(false);
-        feedbackBox.Text(messages("<br><b>Received:</b> " + textOfResponse));
+        feedbackBox.Text(messages("<b>Received:</b> " + textOfResponse+"<br>"));
         if (status.equals("200") ) try {
             JSONObject parser = new JSONObject(textOfResponse);
             if (parser.getString("Status").equals("OK")) {
-                dbg("B");
                 if (c.equals(relayServerConnection)) {
                     if (parser.getString("sensor").equals("IPv4")) {
                         if (!parser.getString("value").equals("")) {
@@ -472,36 +478,73 @@ public class MainActivity extends Form implements HandlesEventDispatching {
                     }
                 }
                 else  if (c.equals(testConnection)) {
-                    dbg("C");
-                    if (!(parser.getString("IPv4").length() >= 7)){
+                    if ((parser.getString("IPv4").length() >= 7)){
                         /* if the Sensor Unit replies with its IP address (plus other data,
                             then we're connected, agus ag tarraingt díosal. */
                         // Cén seans ann go mbeadh device eile ar an líonra?
-                        if (parser.getString("IPv4").equals(txt_IPv4.Text())) {
+                        boolean a=(d1_IPv4.compareTo( parser.getString("IPv4") ) == 0);
+                        if (a) {
                             // Good to go to configuration of settings now.
-                            d1_IPv4 = parser.getString("value");
                             dbg("Successful connection to unit.");
+                            activity="";
+                            feedbackBox.HeightPercent(30);
+                            feedbackBox.Text(messages("<b>Successful connection to unit.</b>"));
                             txt_IPv4.TextColor(COLOR_SUCCESS_GREEN);
                             txt_IPv4.FontBold(true);
                             enlargeTable();
                             configureDeviceButton.Visible(true);
                         }
                         else {
-                            dbg("D");
+                            // things should get _this_ bad.
+                            dbg(d1_IPv4);
+                            dbg( parser.getString("IPv4") );
+                            dbg( Integer.valueOf(d1_IPv4.compareTo( parser.getString("IPv4"))).toString());
+                        }
+                    }
+                }
+                else  if (c.equals(sensorUnitConnection)) {
+                    // on the off-chance there's another on the network, or data error
+                    boolean a=(txt_DeviceName.Text().compareTo( parser.getString("config_DeviceName") ) == 0);
+                    if (a) {
+                        dbg("Successful read from unit.");
+                        activity="";
+                        feedbackBox.Text(messages("<b>Successful read from unit.</b>"));
+                        txt_IPv4.TextColor(Component.COLOR_BLACK);
+                        txt_DeviceName.TextColor(COLOR_SUCCESS_GREEN);
+                        txt_IPv4.FontBold(false);
+                        txt_DeviceName.FontBold(true);
+//                        txt_SSID.Text(parser.getString("device_SSID"));
+//                        parser.
+//                        txt_PSK.Text(parser.getString("device_PSK"));
+                        if (isNumeric(parser.getString("config_Status"))){
+                            txt_Status.Text(parser.getString("config_Status"));
+                        }
+                        if (isNumeric(parser.getString("config_Attempts"))){
+                            txt_Attempts.Text(parser.getString("config_Attempts"));
+                        }
+//                        if (parser.getString("active").equals("Y")){
+//                            chk_Active.Checked(true);
+//                        }
+//                        else {
+//                            chk_Active.Checked(false);
+//                        }
+                        // if we're not in write mode, offer that
+                        if (!d1_ModeWrite) {
+                            configureDeviceButton.Text("Update EEPROM");
                         }
                     }
                     else {
+                        dbg(parser.getString("config_DeviceName"));
+                        dbg( txt_DeviceName.Text() );
 
                     }
                 }
-            }
-            else {
-
             }
         }
         catch (JSONException e) {
             notifier_Messages.ShowAlert("JSON Error 422");
             dbg("android JSON exception (" + textOfResponse + ")");
+            feedbackBox.Text (messages("android JSON exception (" + textOfResponse + ")"));
         }
         else {
             feedbackBox.Text( messages( "Error status code is "+status) );
@@ -510,5 +553,20 @@ public class MainActivity extends Form implements HandlesEventDispatching {
     }
     public static void dbg (String debugMsg) {
         System.err.print( "~~~> " + debugMsg + " <~~~\n");
+    }
+    public static boolean isNumeric(String string) {
+        int intValue;
+//        System.out.println(String.format("Parsing string: \"%s\"", string));
+        if(string == null || string.equals("")) {
+            System.out.println("String cannot be parsed, it is null or empty.");
+            return false;
+        }
+        try {
+            intValue = Integer.parseInt(string);
+            return true;
+        } catch (NumberFormatException e) {
+            System.out.println("Input String cannot be parsed to Integer.");
+        }
+        return false;
     }
 }
