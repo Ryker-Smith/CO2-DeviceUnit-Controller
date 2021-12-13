@@ -42,7 +42,7 @@ public class MainActivity extends Form implements HandlesEventDispatching {
     String  activity = "",
             d1_IPv4="waiting",
             config_Proto="http://",
-            config_Port=""; // could be eg :8080 etc
+            config_Port=":80"; // could be eg :8080 etc
 
     int programProgress = 0;
 
@@ -52,7 +52,7 @@ public class MainActivity extends Form implements HandlesEventDispatching {
     private static final String URL_MAIN = EXTERNALLY_STORED_1;
     private static final String WIFI_PSK = "password";
     private static final String WIFI_SSID = "someSSID";
-    private static final String NAME_DEFAULT_DEVICE="TCFE-CO2-2B-34";
+    private static final String NAME_DEFAULT_DEVICE="TCFE-CO2-98-88";
     /* Tá ná dáthanna déanta mar an gcéanna le HTML, ach le FF ar
     dtús air. Sin uimhir ó 0-FF ar cé comh tréshoilseacht an rud.
     Cur 0x ós comhair sin chun stad-riamh-fhocail i Hexadecimal a dhénamh agus sabháil */
@@ -63,6 +63,7 @@ public class MainActivity extends Form implements HandlesEventDispatching {
     private static final int SECTION_BG_COLOR = 0xFF477c9b;
     private static final int TEXTBOX_COLOR = 0xFF000000;
     private static final int TEXTBOX_BACKGROUND_COLOR = 0xFFdbdde6;
+    private static final int COLOR_SUCCESS_GREEN = 0xFF569f4b;
     private static final int SIZE_LABELS_TXT = 18;
     private static final int SIZE_SMALL_LABELS_TXT = 14;
     private static final int SIZE_TOP_BAR = 50;
@@ -281,7 +282,7 @@ public class MainActivity extends Form implements HandlesEventDispatching {
 
     public boolean dispatchEvent(Component component, String componentName, String eventName, Object[] params) {
 
-        System.err.print("dispatchEvent: " + formName + " [" + component.toString() + "] [" + componentName + "] " + eventName);
+        dbg("dispatchEvent: " + formName + " [" +component.toString() + "] [" + componentName + "] " + eventName);
         if (eventName.equals("BackPressed")) {
             // this would be a great place to do something useful
             return true;
@@ -323,8 +324,13 @@ public class MainActivity extends Form implements HandlesEventDispatching {
         }
         else if (eventName.equals("Click")) {
             if (component.equals(connectLocalDeviceButton)) {
-                testConnection.Url(config_Proto+txt_IPv4.Text()+config_Port);
+                // once "Find my device" [by name] has completed there should be an IP address available
+                // Is "browse local network" an Android config requirement
+                testConnection.Url( config_Proto + txt_IPv4.Text() + config_Port);
+                feedbackBox.Text( messages("<br>\n<b>Connection attempt to:</b> "+testConnection.Url()));
+                dbg("Connection attempt to: "+testConnection.Url());
                 testConnection.Get();
+                dbg("A");
                 padDivider3.FontBold(true);
                 return true;
             }
@@ -332,12 +338,12 @@ public class MainActivity extends Form implements HandlesEventDispatching {
                 activity = "";
                 if (!txt_DeviceName.Text().equals("")) {
                     relayServerConnection.Url(makeGetString_IPv4());
-                    relayServerConnection.Get();
                     padDivider3.FontBold(true);
                     lbl_IPv4.Visible(true);
                     txt_IPv4.Visible(true);
                     feedbackBox.Text(messages("<b>To:</b> " + relayServerConnection.Url()));
                     feedbackBox.Text(messages("<br>\n<b>Sending</b> " ));
+                    relayServerConnection.Get();
                 }
                 return true;
             }
@@ -455,6 +461,7 @@ public class MainActivity extends Form implements HandlesEventDispatching {
         if (status.equals("200") ) try {
             JSONObject parser = new JSONObject(textOfResponse);
             if (parser.getString("Status").equals("OK")) {
+                dbg("B");
                 if (c.equals(relayServerConnection)) {
                     if (parser.getString("sensor").equals("IPv4")) {
                         if (!parser.getString("value").equals("")) {
@@ -465,15 +472,31 @@ public class MainActivity extends Form implements HandlesEventDispatching {
                     }
                 }
                 else  if (c.equals(testConnection)) {
-                    if (parser.getString("sensor").equals("IPv4")) {
-                        if (!parser.getString("value").equals("")) {
+                    dbg("C");
+                    if (!(parser.getString("IPv4").length() >= 7)){
+                        /* if the Sensor Unit replies with its IP address (plus other data,
+                            then we're connected, agus ag tarraingt díosal. */
+                        // Cén seans ann go mbeadh device eile ar an líonra?
+                        if (parser.getString("IPv4").equals(txt_IPv4.Text())) {
+                            // Good to go to configuration of settings now.
                             d1_IPv4 = parser.getString("value");
-                            txt_IPv4.Text(d1_IPv4);
+                            dbg("Successful connection to unit.");
+                            txt_IPv4.TextColor(COLOR_SUCCESS_GREEN);
+                            txt_IPv4.FontBold(true);
                             enlargeTable();
                             configureDeviceButton.Visible(true);
                         }
+                        else {
+                            dbg("D");
+                        }
+                    }
+                    else {
+
                     }
                 }
+            }
+            else {
+
             }
         }
         catch (JSONException e) {
@@ -485,7 +508,7 @@ public class MainActivity extends Form implements HandlesEventDispatching {
             dbg("Status is "+status);
         }
     }
-    public static void dbg (String S) {
-        Log.e("AppUnderConstruction","\n-----> ["+S+"]\n");
+    public static void dbg (String debugMsg) {
+        System.err.print( "~~~> " + debugMsg + " <~~~\n");
     }
 }
