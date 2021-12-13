@@ -12,6 +12,7 @@ import com.google.appinventor.components.runtime.HandlesEventDispatching;
 import com.google.appinventor.components.runtime.HorizontalArrangement;
 import com.google.appinventor.components.runtime.Label;
 import com.google.appinventor.components.runtime.Notifier;
+import com.google.appinventor.components.runtime.Spinner;
 import com.google.appinventor.components.runtime.TableArrangement;
 import com.google.appinventor.components.runtime.TextBox;
 import com.google.appinventor.components.runtime.VerticalScrollArrangement;
@@ -28,6 +29,7 @@ public class MainActivity extends Form implements HandlesEventDispatching {
 
     private
     VerticalScrollArrangement Screen1;
+    StatusBarTools statusBar;
     HorizontalArrangement SmallControls;
     TextBox txt_SSID, txt_PSK, txt_DeviceName, txt_IPv4;
     Label lbl_SSID, lbl_PSK, lbl_DeviceName, lbl_IPv4, padDivider3;
@@ -36,6 +38,7 @@ public class MainActivity extends Form implements HandlesEventDispatching {
     Label feedbackBox;
     Notifier notifier_Messages;
 //    CheckBox chk_Active;
+    Spinner spin_Active;
     TextBox txt_active;
     TextBox txt_Status, txt_Attempts;
     ArrayList myHeaders;
@@ -107,11 +110,13 @@ public class MainActivity extends Form implements HandlesEventDispatching {
         Integer h = a.$form().Height();
         Screen1 = new VerticalScrollArrangement(this);
         // each component, listed in order
+        statusBar=new StatusBarTools(Screen1);
         Label heading = new Label(Screen1);
         SmallControls = new HorizontalArrangement(Screen1);
         Label lblActive = new Label(SmallControls);
         txt_active = new TextBox(SmallControls);
         Label lblStatus = new Label(SmallControls);
+        spin_Active = new Spinner((SmallControls));
         txt_Status = new TextBox(SmallControls);
         Label lblAttempts = new Label(SmallControls);
         txt_Attempts = new TextBox(SmallControls);
@@ -133,8 +138,9 @@ public class MainActivity extends Form implements HandlesEventDispatching {
         testConnection = new Web(Screen1);
         notifier_Messages = new Notifier(Screen1);
 
-//        View v1=this.getWindow().getDecorView().getRootView();
-//        v1.setSystemUiVisibility(View.SYSTEM_UI_FLAG_FULLSCREEN);
+        // still not sure how this works
+        statusBar.BGTransparentColor("#00000000");
+        statusBar.BackgroundColor("#00000000");
         // now, how every component looks:
         Screen1.Width(w);
         Screen1.Height(h);
@@ -143,7 +149,7 @@ public class MainActivity extends Form implements HandlesEventDispatching {
         Screen1.BackgroundColor(BACKGROUND_COLOR);
         heading.Width(w);
         heading.Height(SIZE_TOP_BAR);
-        heading.Text("<h2><b>Update EEPROM Settings</b></h2>");
+        heading.Text("\b<h3><b>Update EEPROM Settings</b></h3>");
         heading.TextAlignment(Component.ALIGNMENT_CENTER);
         heading.FontSize(SIZE_LABELS_TXT + 5);
         heading.HTMLFormat(true);
@@ -162,6 +168,8 @@ public class MainActivity extends Form implements HandlesEventDispatching {
         txt_active.BackgroundColor(TEXTBOX_BACKGROUND_COLOR);
         txt_active.Height(SIZE_TOP_BAR);
         txt_active.Enabled(false);
+        spin_Active.ElementsFromString("N A Y");
+
         lblStatus.Text("Status (0/2/4) ");
         lblStatus.FontTypeface(FONT_NUMBER);
         lblStatus.FontSize(SIZE_SMALL_LABELS_TXT);
@@ -272,6 +280,7 @@ public class MainActivity extends Form implements HandlesEventDispatching {
         EventDispatcher.registerEventForDelegation(this, formName, "Click");
         EventDispatcher.registerEventForDelegation(this, formName, "GotText");
         EventDispatcher.registerEventForDelegation(this, formName, "LostFocus");
+        EventDispatcher.registerEventForDelegation(this, formName, "AfterSelecting");
     }
 
     public boolean dispatchEvent(Component component, String componentName, String eventName, Object[] params) {
@@ -464,7 +473,7 @@ public class MainActivity extends Form implements HandlesEventDispatching {
 
     void handler_Response(Component c, String status, String textOfResponse){
         padDivider3.FontBold(false);
-        feedbackBox.Text(messages("<b>Received:</b> " + textOfResponse+"<br>"));
+        feedbackBox.Text(messages("<br><b>Received:</b> " + textOfResponse+"<br>"));
         if (status.equals("200") ) try {
             JSONObject parser = new JSONObject(textOfResponse);
             if (parser.getString("Status").equals("OK")) {
