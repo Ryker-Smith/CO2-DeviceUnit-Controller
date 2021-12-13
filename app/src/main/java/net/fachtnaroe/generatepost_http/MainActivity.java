@@ -1,10 +1,6 @@
 package net.fachtnaroe.generatepost_http;
 
-import android.util.Log;
-import android.view.View;
-
 import com.google.appinventor.components.runtime.Button;
-import com.google.appinventor.components.runtime.CheckBox;
 import com.google.appinventor.components.runtime.Component;
 import com.google.appinventor.components.runtime.EventDispatcher;
 import com.google.appinventor.components.runtime.Form;
@@ -23,6 +19,9 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import java.util.ArrayList;
 import java.util.List;
+
+import gnu.text.Char;
+
 import static net.fachtnaroe.generatepost_http.GeneralApplicationSettings.EXTERNALLY_STORED_1;
 
 public class MainActivity extends Form implements HandlesEventDispatching {
@@ -30,16 +29,14 @@ public class MainActivity extends Form implements HandlesEventDispatching {
     private
     VerticalScrollArrangement Screen1;
     StatusBarTools statusBar;
-    HorizontalArrangement SmallControls;
+    HorizontalArrangement fiddlyTopBits;
     TextBox txt_SSID, txt_PSK, txt_DeviceName, txt_IPv4;
     Label lbl_SSID, lbl_PSK, lbl_DeviceName, lbl_IPv4, padDivider3;
     Button configureDeviceButton, findDeviceButton, connectLocalDeviceButton, testLocalDeviceButton;
     Web sensorUnitConnection, relayServerConnection, testConnection;
     Label feedbackBox;
     Notifier notifier_Messages;
-//    CheckBox chk_Active;
     Spinner spin_Active;
-    TextBox txt_active;
     TextBox txt_Status, txt_Attempts;
     ArrayList myHeaders;
     TableArrangement NetworkSetup;
@@ -48,7 +45,8 @@ public class MainActivity extends Form implements HandlesEventDispatching {
             config_Proto="http://",
             config_Port=":80", // could be eg :8080 etc
             config_Read ="/getconfig",
-            config_Write ="/setconfig";
+            config_Write ="/setconfig",
+            statusValues="N, A, Y";
     int programProgress = 0;
     boolean d1_ModeWrite=false;
 
@@ -112,14 +110,15 @@ public class MainActivity extends Form implements HandlesEventDispatching {
         // each component, listed in order
         statusBar=new StatusBarTools(Screen1);
         Label heading = new Label(Screen1);
-        SmallControls = new HorizontalArrangement(Screen1);
-        Label lblActive = new Label(SmallControls);
-        txt_active = new TextBox(SmallControls);
-        Label lblStatus = new Label(SmallControls);
-        spin_Active = new Spinner((SmallControls));
-        txt_Status = new TextBox(SmallControls);
-        Label lblAttempts = new Label(SmallControls);
-        txt_Attempts = new TextBox(SmallControls);
+        fiddlyTopBits = new HorizontalArrangement(Screen1);
+        Label lblActive = new Label(fiddlyTopBits);
+//        TextBox txt_Active=new TextBox(SmallControls);
+        HorizontalArrangement tmp=new HorizontalArrangement(fiddlyTopBits);
+        spin_Active = new Spinner(tmp);
+        Label lblStatus = new Label(fiddlyTopBits);
+        txt_Status = new TextBox(fiddlyTopBits);
+        Label lblAttempts = new Label(fiddlyTopBits);
+        txt_Attempts = new TextBox(fiddlyTopBits);
         Label padDivider1 = new Label(Screen1);
         HorizontalArrangement tableEnclosure=new HorizontalArrangement(Screen1);
         NetworkSetup = new TableArrangement(tableEnclosure);
@@ -155,22 +154,24 @@ public class MainActivity extends Form implements HandlesEventDispatching {
         heading.HTMLFormat(true);
         heading.TextColor(HEADING_COLOR);
 
-        SmallControls.Visible(false);
-        SmallControls.Width(w);
-        SmallControls.Height(SIZE_TOP_BAR);
-        SmallControls.AlignVertical(Component.ALIGNMENT_CENTER);
-        SmallControls.BackgroundColor(BUTTON_COLOR);
-        lblActive.Text("Is active ");
+        fiddlyTopBits.Visible(false);
+        fiddlyTopBits.WidthPercent(100);
+        fiddlyTopBits.Height(SIZE_TOP_BAR);
+        fiddlyTopBits.AlignVertical(Component.ALIGNMENT_CENTER);
+        fiddlyTopBits.BackgroundColor(BUTTON_COLOR);
+        lblActive.Text("Active ");
         lblActive.FontTypeface(FONT_NUMBER);
         lblActive.FontSize(SIZE_SMALL_LABELS_TXT);
         lblActive.TextColor(Component.COLOR_WHITE);
         lblActive.HeightPercent(100);
-        txt_active.BackgroundColor(TEXTBOX_BACKGROUND_COLOR);
-        txt_active.Height(SIZE_TOP_BAR);
-        txt_active.Enabled(false);
-        spin_Active.ElementsFromString("N A Y");
 
-        lblStatus.Text("Status (0/2/4) ");
+        tmp.BackgroundColor(TEXTBOX_BACKGROUND_COLOR);
+        tmp.Height(SIZE_TOP_BAR);
+        tmp.WidthPercent(10);
+        spin_Active.ElementsFromString(statusValues);
+        spin_Active.Height(SIZE_TOP_BAR);
+
+        lblStatus.Text("Status\n(0/2/4) ");
         lblStatus.FontTypeface(FONT_NUMBER);
         lblStatus.FontSize(SIZE_SMALL_LABELS_TXT);
         lblStatus.TextColor(Component.COLOR_WHITE);
@@ -183,7 +184,7 @@ public class MainActivity extends Form implements HandlesEventDispatching {
         txt_Status.Text("0");
         txt_Status.NumbersOnly(true);
         txt_Status.FontSize(SIZE_LABELS_TXT);
-        lblAttempts.Text("Retry attempts ");
+        lblAttempts.Text("Retry\nattempts ");
         lblAttempts.FontTypeface(FONT_NUMBER);
         lblAttempts.FontSize(SIZE_SMALL_LABELS_TXT);
         lblAttempts.TextColor(Component.COLOR_WHITE);
@@ -246,7 +247,7 @@ public class MainActivity extends Form implements HandlesEventDispatching {
         padDivider3.FontTypeface(FONT_NUMBER);
         padDivider3.FontSize(SIZE_LABELS_TXT);
         feedbackBox.Width(w);
-        feedbackBox.HeightPercent(50);
+        feedbackBox.HeightPercent(30);
         feedbackBox.HTMLFormat(true);
         feedbackBox.FontSize(SIZE_LABELS_TXT);
         feedbackBox.FontTypeface(FONT_NUMBER_FIXED);
@@ -288,6 +289,10 @@ public class MainActivity extends Form implements HandlesEventDispatching {
         dbg("dispatchEvent: " + formName + " [" +component.toString() + "] [" + componentName + "] " + eventName);
         if (eventName.equals("BackPressed")) {
             // this would be a great place to do something useful
+            return true;
+        }
+        else if (eventName.equals("AfterSelecting")) {
+            dbg(spin_Active.Selection());
             return true;
         }
         else if (eventName.equals("LostFocus")) {
@@ -457,7 +462,7 @@ public class MainActivity extends Form implements HandlesEventDispatching {
         txt_PSK.FontTypeface(FONT_NUMBER_FIXED);
         txt_PSK.Text(WIFI_PSK);
         txt_PSK.Visible(true);
-        SmallControls.Visible(true);
+        fiddlyTopBits.Visible(true);
     }
 
     String messages(String addition) {
@@ -473,7 +478,7 @@ public class MainActivity extends Form implements HandlesEventDispatching {
 
     void handler_Response(Component c, String status, String textOfResponse){
         padDivider3.FontBold(false);
-        feedbackBox.Text(messages("<br><b>Received:</b> " + textOfResponse+"<br>"));
+        feedbackBox.Text(messages("<b>Received:</b> " + textOfResponse+"<br>"));
         if (status.equals("200") ) try {
             JSONObject parser = new JSONObject(textOfResponse);
             if (parser.getString("Status").equals("OK")) {
@@ -485,66 +490,67 @@ public class MainActivity extends Form implements HandlesEventDispatching {
                             connectLocalDeviceButton.Visible(true);
                         }
                     }
-                }
-                else  if (c.equals(testConnection)) {
-                    if ((parser.getString("IPv4").length() >= 7)){
+                } else if (c.equals(testConnection)) {
+                    if ((parser.getString("IPv4").length() >= 7)) {
                         /* if the Sensor Unit replies with its IP address (plus other data,
                             then we're connected, agus ag tarraingt díosal. */
                         // Cén seans ann go mbeadh device eile ar an líonra?
-                        boolean a=(d1_IPv4.compareTo( parser.getString("IPv4") ) == 0);
+                        boolean a = (d1_IPv4.compareTo(parser.getString("IPv4")) == 0);
                         if (a) {
                             // Good to go to configuration of settings now.
                             dbg("Successful connection to unit.");
-                            activity="";
+                            activity = "";
                             feedbackBox.HeightPercent(30);
                             feedbackBox.Text(messages("<b>Successful connection to unit.</b>"));
                             txt_IPv4.TextColor(COLOR_SUCCESS_GREEN);
                             txt_IPv4.FontBold(true);
                             enlargeTable();
                             configureDeviceButton.Visible(true);
-                        }
-                        else {
+                        } else {
                             // things should get _this_ bad.
                             dbg(d1_IPv4);
-                            dbg( parser.getString("IPv4") );
-                            dbg( Integer.valueOf(d1_IPv4.compareTo( parser.getString("IPv4"))).toString());
+                            dbg(parser.getString("IPv4"));
+                            dbg(Integer.valueOf(d1_IPv4.compareTo(parser.getString("IPv4"))).toString());
                         }
                     }
-                }
-                else  if (c.equals(sensorUnitConnection)) {
+                } else if (c.equals(sensorUnitConnection)) {
                     // on the off-chance there's another on the network, or data error
-                    boolean a=(txt_DeviceName.Text().compareTo( parser.getString("config_DeviceName") ) == 0);
+                    boolean a = (txt_DeviceName.Text().compareTo(parser.getString("config_DeviceName")) == 0);
                     if (a) {
                         dbg("Successful read from unit.");
-                        activity="";
+                        activity = "";
                         feedbackBox.Text(messages("<b>Successful read from unit.</b>"));
                         txt_IPv4.TextColor(Component.COLOR_BLACK);
                         txt_DeviceName.TextColor(COLOR_SUCCESS_GREEN);
                         txt_IPv4.FontBold(false);
                         txt_DeviceName.FontBold(true);
-//                        txt_SSID.Text(parser.getString("device_SSID"));
-//                        parser.
-//                        txt_PSK.Text(parser.getString("device_PSK"));
-                        if (isNumeric(parser.getString("config_Status"))){
+                        dbg(parser.getString("config_SSID"));
+                        txt_SSID.Text(parser.getString("config_SSID"));
+                        txt_PSK.Text(parser.getString("config_PSK"));
+                        if (isNumeric(parser.getString("config_Status"))) {
                             txt_Status.Text(parser.getString("config_Status"));
                         }
-                        if (isNumeric(parser.getString("config_Attempts"))){
+                        if (isNumeric(parser.getString("config_Attempts"))) {
                             txt_Attempts.Text(parser.getString("config_Attempts"));
                         }
-//                        if (parser.getString("active").equals("Y")){
-//                            chk_Active.Checked(true);
-//                        }
-//                        else {
-//                            chk_Active.Checked(false);
+//                        char[] ch;
+//                        ch[0]='Y';
+//                        ch=(parser.getString("active").getChars(0,1,ch));
+//                        dbg(String.valueOf(ch));
+//                        spin_Active.SelectionIndex(2);
+//                        spin_Active.Selection("Y");
+//                        if (parser.getString("active").equals("Y")) {
+//
+//                        } else {
+//
 //                        }
                         // if we're not in write mode, offer that
                         if (!d1_ModeWrite) {
                             configureDeviceButton.Text("Update EEPROM");
                         }
-                    }
-                    else {
+                    } else {
                         dbg(parser.getString("config_DeviceName"));
-                        dbg( txt_DeviceName.Text() );
+                        dbg(txt_DeviceName.Text());
 
                     }
                 }
