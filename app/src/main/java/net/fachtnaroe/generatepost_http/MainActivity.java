@@ -13,14 +13,13 @@ import com.google.appinventor.components.runtime.TableArrangement;
 import com.google.appinventor.components.runtime.TextBox;
 import com.google.appinventor.components.runtime.VerticalScrollArrangement;
 import com.google.appinventor.components.runtime.Web;
+import com.google.appinventor.components.runtime.util.YailList;
 //import com.google.appinventor.components.runtime.util.YailList;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 import java.util.ArrayList;
 import java.util.List;
-
-import gnu.text.Char;
 
 import static net.fachtnaroe.generatepost_http.GeneralApplicationSettings.EXTERNALLY_STORED_1;
 
@@ -30,7 +29,7 @@ public class MainActivity extends Form implements HandlesEventDispatching {
     VerticalScrollArrangement Screen1;
     StatusBarTools statusBar;
     HorizontalArrangement fiddlyTopBits;
-    TextBox txt_SSID, txt_PSK, txt_DeviceName, txt_IPv4;
+    TextBox txt_SSID, txt_PSK, txt_DeviceName, txt_IPv4, txt_active;
     Label lbl_SSID, lbl_PSK, lbl_DeviceName, lbl_IPv4, padDivider3;
     Button configureDeviceButton, findDeviceButton, connectLocalDeviceButton, testLocalDeviceButton;
     Web sensorUnitConnection, relayServerConnection, testConnection;
@@ -46,7 +45,8 @@ public class MainActivity extends Form implements HandlesEventDispatching {
             config_Port=":80", // could be eg :8080 etc
             config_Read ="/getconfig",
             config_Write ="/setconfig",
-            statusValues="N, A, Y";
+            statusValues="Choose,No,Attempting,Yes",
+            spinnerValue="";
     int programProgress = 0;
     boolean d1_ModeWrite=false;
 
@@ -112,9 +112,9 @@ public class MainActivity extends Form implements HandlesEventDispatching {
         Label heading = new Label(Screen1);
         fiddlyTopBits = new HorizontalArrangement(Screen1);
         Label lblActive = new Label(fiddlyTopBits);
-//        TextBox txt_Active=new TextBox(SmallControls);
-        HorizontalArrangement tmp=new HorizontalArrangement(fiddlyTopBits);
-        spin_Active = new Spinner(tmp);
+        HorizontalArrangement spinnerGroup=new HorizontalArrangement(fiddlyTopBits);
+        txt_active=new TextBox(spinnerGroup);
+        spin_Active = new Spinner(spinnerGroup);
         Label lblStatus = new Label(fiddlyTopBits);
         txt_Status = new TextBox(fiddlyTopBits);
         Label lblAttempts = new Label(fiddlyTopBits);
@@ -159,17 +159,26 @@ public class MainActivity extends Form implements HandlesEventDispatching {
         fiddlyTopBits.Height(SIZE_TOP_BAR);
         fiddlyTopBits.AlignVertical(Component.ALIGNMENT_CENTER);
         fiddlyTopBits.BackgroundColor(BUTTON_COLOR);
-        lblActive.Text("Active ");
+
+        lblActive.Text("Is\nActive ");
         lblActive.FontTypeface(FONT_NUMBER);
         lblActive.FontSize(SIZE_SMALL_LABELS_TXT);
         lblActive.TextColor(Component.COLOR_WHITE);
         lblActive.HeightPercent(100);
-
-        tmp.BackgroundColor(TEXTBOX_BACKGROUND_COLOR);
-        tmp.Height(SIZE_TOP_BAR);
-        tmp.WidthPercent(10);
+        spinnerGroup.BackgroundColor(TEXTBOX_BACKGROUND_COLOR);
+        spinnerGroup.Height(SIZE_TOP_BAR);
+        spinnerGroup.WidthPercent(30);
+        txt_active.WidthPercent(5);
+        txt_active.Enabled(false);
+        txt_active.Height(SIZE_TOP_BAR);
+        txt_active.BackgroundColor(TEXTBOX_BACKGROUND_COLOR);
+        txt_active.TextColor(TEXTBOX_COLOR);
+        txt_active.TextAlignment(Component.ALIGNMENT_CENTER);
+        txt_Status.Text("?");
+        txt_Status.FontSize(SIZE_LABELS_TXT);
         spin_Active.ElementsFromString(statusValues);
         spin_Active.Height(SIZE_TOP_BAR);
+        spin_Active.WidthPercent(100);
 
         lblStatus.Text("Status\n(0/2/4) ");
         lblStatus.FontTypeface(FONT_NUMBER);
@@ -184,6 +193,7 @@ public class MainActivity extends Form implements HandlesEventDispatching {
         txt_Status.Text("0");
         txt_Status.NumbersOnly(true);
         txt_Status.FontSize(SIZE_LABELS_TXT);
+
         lblAttempts.Text("Retry\nattempts ");
         lblAttempts.FontTypeface(FONT_NUMBER);
         lblAttempts.FontSize(SIZE_SMALL_LABELS_TXT);
@@ -197,6 +207,7 @@ public class MainActivity extends Form implements HandlesEventDispatching {
         txt_Attempts.Text("0");
         txt_Attempts.NumbersOnly(true);
         txt_Attempts.FontSize(SIZE_LABELS_TXT);
+        // END of fiddlyTopBits
 
         padDivider1.Height(PAD_DIVIDER_HEIGHT);
         tableEnclosure.WidthPercent(100);
@@ -293,6 +304,13 @@ public class MainActivity extends Form implements HandlesEventDispatching {
         }
         else if (eventName.equals("AfterSelecting")) {
             dbg(spin_Active.Selection());
+            // if the user chooses the 'Choose' instruction, ignore them...
+            if (spin_Active.SelectionIndex() != 0) {
+                char[] ch = spin_Active.Selection().substring(0, 1).toUpperCase().toCharArray();
+                spinnerValue = "";
+                spinnerValue += ch[0];
+                txt_active.Text(spinnerValue);
+            }
             return true;
         }
         else if (eventName.equals("LostFocus")) {
@@ -314,21 +332,19 @@ public class MainActivity extends Form implements HandlesEventDispatching {
             if (component.equals(testConnection)) {
                 String status = params[1].toString();
                 String textOfResponse = (String) params[3];
-                handler_Response(component, status, textOfResponse);
+                handleNetworkResponse(component, status, textOfResponse);
                 return true;
             }
             else if (component.equals(relayServerConnection)) {
                 String status = params[1].toString();
                 String textOfResponse = (String) params[3];
-                handler_Response(component, status, textOfResponse);
+                handleNetworkResponse(component, status, textOfResponse);
                 return true;
             }
             else if (component.equals(sensorUnitConnection)) {
-//                    dbg(params[0].toString());
-//                    dbg(params[2].toString());
                     String status = params[1].toString();
                     String textOfResponse = (String) params[3];
-                    handler_Response(component, status, textOfResponse);
+                    handleNetworkResponse(component, status, textOfResponse);
                     return true;
                 }
         }
@@ -392,12 +408,6 @@ public class MainActivity extends Form implements HandlesEventDispatching {
 
     eepromStruct makeConfig(){
         d1_Data=new eepromStruct();
-//        if (chk_Active.Checked()) {
-//            d1_Data.active = 'Y';
-//        }
-//        else {
-//            d1_Data.active='N';
-//        }
         int v1= Integer.valueOf(txt_Status.Text());
         d1_Data.config_Status= (byte) v1;
         int v2= Integer.valueOf(txt_Attempts.Text());
@@ -476,9 +486,9 @@ public class MainActivity extends Form implements HandlesEventDispatching {
         return com.google.appinventor.components.runtime.util.YailList.makeList(arrlist);
     }
 
-    void handler_Response(Component c, String status, String textOfResponse){
+    void handleNetworkResponse(Component c, String status, String textOfResponse){
         padDivider3.FontBold(false);
-        feedbackBox.Text(messages("<b>Received:</b> " + textOfResponse+"<br>"));
+//        feedbackBox.Text(messages("<b>Received:</b> " + textOfResponse+"<br>"));
         if (status.equals("200") ) try {
             JSONObject parser = new JSONObject(textOfResponse);
             if (parser.getString("Status").equals("OK")) {
@@ -533,17 +543,21 @@ public class MainActivity extends Form implements HandlesEventDispatching {
                         if (isNumeric(parser.getString("config_Attempts"))) {
                             txt_Attempts.Text(parser.getString("config_Attempts"));
                         }
-//                        char[] ch;
-//                        ch[0]='Y';
-//                        ch=(parser.getString("active").getChars(0,1,ch));
-//                        dbg(String.valueOf(ch));
-//                        spin_Active.SelectionIndex(2);
-//                        spin_Active.Selection("Y");
-//                        if (parser.getString("active").equals("Y")) {
-//
-//                        } else {
-//
-//                        }
+                        txt_active.Text(parser.getString("active"));
+                        // convert YailList into String array, in order to become slightly less insance
+                        String[] tmp3= spin_Active.Elements().toStringArray();
+                        // the above is the same as:
+                        /* YailList tmp2=spin_Active.Elements();
+                        String[] tmp3= tmp2.toStringArray(); */
+                        for (int i=0; i<tmp3.length; i++) {
+                            // for each element
+                            String s=tmp3[i].substring(0,1);
+                            if (parser.getString("active").equals(s)) {
+                                // this feckin thing starts at 1, not 0
+                                spin_Active.SelectionIndex(i+1);
+                                dbg("Match "+s+" "+Integer.toString(i));
+                            }
+                        }
                         // if we're not in write mode, offer that
                         if (!d1_ModeWrite) {
                             configureDeviceButton.Text("Update EEPROM");
@@ -585,3 +599,54 @@ public class MainActivity extends Form implements HandlesEventDispatching {
         return false;
     }
 }
+
+        // Here be monsters:
+        //                            switch (parser.getString("active")) {
+//                                case "N" : ;
+//                                case "A" :;
+//                                case "Y" :;
+//                                default :;
+//                            }
+//                            dbg(Integer.toString(i));
+//                            System.err.println(tmp2);
+//                            String[] p;
+//                            p= tmp2.toStringArray();
+//                            String s=p[0];
+//                            String t=p[1];
+//                            String u=p[2];
+//                            System.err.println(p);
+//                            System.err.println(s);
+//                            System.err.println(t);
+//                            dbg(u);
+//                            dbg(parser.getString("active"));
+
+//                        char[] ch;
+//                        ch[0]='Y';
+//                        ch=(parser.getString("active").getChars(0,1,ch));
+//                        dbg(String.valueOf(ch));
+//                        spin_Active.SelectionIndex(2);
+//                        YailList tmp2=spin_Active.Elements();
+//                        String[] tmp3= tmp2.toStringArray();
+//                        for (int i=0; i<tmp2.size(); i++) {
+//                            char[] ch = spin_Active.Selection().substring(0,1).toUpperCase().toCharArray();
+//                            if (parser.getString("active").equals(tmp3[i])) {
+//                                spin_Active.SelectionIndex(2);
+////                                spin_Active.Selection("Y");
+//                                txt_active.Text(parser.getString("active"));
+//                                dbg("Match");
+//                            }
+//                            dbg(Integer.toString(i));
+////                            String g= YailListElementToString(tmp2.get(i));//.toString();
+//                            System.err.println(tmp2);
+//                            String[] p;
+//                            p= tmp2.toStringArray();
+//                            String s=p[0];
+//                            String t=p[1];
+//                            String u=p[2];
+//                            System.err.println(p);
+//                            System.err.println(s);
+//                            System.err.println(t);
+//                            dbg(u);
+//                            dbg(parser.getString("active"));
+////                            dbg(parser.getString(g));
+//                        }
