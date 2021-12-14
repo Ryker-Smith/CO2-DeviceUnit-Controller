@@ -56,7 +56,27 @@ public class MainActivity extends Form implements HandlesEventDispatching {
     private static final String URL_MAIN = EXTERNALLY_STORED_1;
     private static final String WIFI_PSK = "password";
     private static final String WIFI_SSID = "someSSID";
+    // providing a NAME_DEFAULT_DEVICE saves on testing/debugging time
     private static final String NAME_DEFAULT_DEVICE="TCFE-CO2-98-88";
+    // UI strings for localisation
+    private static final String ui_txt_STATUS_POSSIBLES = "Status\n(0/4/8) ";
+    private static final String ui_txt_MAIN_HEAD="Update EEPROM Settings";
+    private static final String ui_txt_STATUS_ATTEMPTS_COUNT="Retry\nattempts ";
+    private static final String ui_txt_DEVICE_NAME="Device Name";
+    private static final String ui_txt_IP_ADDRESS="IP address";
+    private static final String ui_txt_ACTIVITY="Activity";
+    private static final String ui_txt_FIND_DEVICE="Find my device";
+    private static final String ui_txt_CONNECT_DEVICE="Connect to device";
+    private static final String ui_txt_READ_DEVICE="Press to Get config";
+    private static final String ui_txt_WRITE_DEVICE="Update EEPROM";
+    private static final String ui_txt_CONNECTION_ATTEMPT="Connection attempt to";
+    private static final String ui_txt_CONNECTION_SENDING="Sending";
+    private static final String ui_txt_CONNECTION_RECEIVED="Received";
+    private static final String ui_txt_CONNECTION_SUCCESS="Successfully connected to unit";
+    private static final String ui_txt_READ_SUCCESS="Successful read from Sensor Unit";
+    private static final String ui_txt_WRITE_SUCCESS="Successful write to Sensor Unit";
+    private static final String ui_txt_ERR_NOT_IMPLEMENTED="Not Implemented";
+    private static final String ui_txt_ERR_422="JSON Error 422";
     /* Tá ná dáthanna déanta mar an gcéanna le HTML, ach le FF ar
     dtús air. Sin uimhir ó 0-FF ar cé comh tréshoilseacht an rud.
     Cur 0x ós comhair sin chun stad-riamh-fhocail i Hexadecimal a dhénamh agus sabháil */
@@ -148,7 +168,8 @@ public class MainActivity extends Form implements HandlesEventDispatching {
         Screen1.BackgroundColor(BACKGROUND_COLOR);
         heading.Width(w);
         heading.Height(SIZE_TOP_BAR);
-        heading.Text("\b<h3><b>Update EEPROM Settings</b></h3>");
+
+        heading.Text("\n<h3><b>" + ui_txt_MAIN_HEAD + "</b></h3>");
         heading.TextAlignment(Component.ALIGNMENT_CENTER);
         heading.FontSize(SIZE_LABELS_TXT + 5);
         heading.HTMLFormat(true);
@@ -180,7 +201,7 @@ public class MainActivity extends Form implements HandlesEventDispatching {
         spin_Active.Height(SIZE_TOP_BAR);
         spin_Active.WidthPercent(100);
 
-        lblStatus.Text("Status\n(0/2/4) ");
+        lblStatus.Text(ui_txt_STATUS_POSSIBLES);
         lblStatus.FontTypeface(FONT_NUMBER);
         lblStatus.FontSize(SIZE_SMALL_LABELS_TXT);
         lblStatus.TextColor(Component.COLOR_WHITE);
@@ -194,7 +215,7 @@ public class MainActivity extends Form implements HandlesEventDispatching {
         txt_Status.NumbersOnly(true);
         txt_Status.FontSize(SIZE_LABELS_TXT);
 
-        lblAttempts.Text("Retry\nattempts ");
+        lblAttempts.Text(ui_txt_STATUS_ATTEMPTS_COUNT);
         lblAttempts.FontTypeface(FONT_NUMBER);
         lblAttempts.FontSize(SIZE_SMALL_LABELS_TXT);
         lblAttempts.TextColor(Component.COLOR_WHITE);
@@ -218,9 +239,10 @@ public class MainActivity extends Form implements HandlesEventDispatching {
         lbl_DeviceName.Row(0);
         lbl_DeviceName.Column(0);
         lbl_DeviceName.FontSize(SIZE_LABELS_TXT);
-        lbl_DeviceName.Text("Device Name");
+        lbl_DeviceName.Text(ui_txt_DEVICE_NAME);
         lbl_DeviceName.TextAlignment(Component.ALIGNMENT_OPPOSITE);
         lbl_DeviceName.FontTypeface(FONT_NUMBER);
+        lbl_DeviceName.TextColor(Component.COLOR_WHITE);
         lbl_DeviceName.Visible(true);
         lbl_DeviceName.BackgroundColor(BACKGROUND_COLOR);
         txt_DeviceName.FontSize(SIZE_LABELS_TXT);
@@ -235,9 +257,10 @@ public class MainActivity extends Form implements HandlesEventDispatching {
         lbl_IPv4.Row(1);
         lbl_IPv4.Column(0);
         lbl_IPv4.FontSize(SIZE_LABELS_TXT);
-        lbl_IPv4.Text("IP address");
+        lbl_IPv4.Text(ui_txt_IP_ADDRESS);
         lbl_IPv4.TextAlignment(Component.ALIGNMENT_OPPOSITE);
         lbl_IPv4.FontTypeface(FONT_NUMBER);
+        lbl_IPv4.TextColor(Component.COLOR_WHITE);
         lbl_IPv4.Visible(false);
         txt_IPv4 = new TextBox(NetworkSetup);
         txt_IPv4.FontSize(SIZE_LABELS_TXT);
@@ -251,7 +274,8 @@ public class MainActivity extends Form implements HandlesEventDispatching {
         padMiddle.Row(0);
         padMiddle.Column(1);
         padMiddle.WidthPercent(1);
-        padDivider3.Text("Activity");
+
+        padDivider3.Text(ui_txt_ACTIVITY);
         padDivider3.FontBold(false);
         padDivider3.WidthPercent(100);
         padDivider3.TextAlignment(Component.ALIGNMENT_CENTER);
@@ -265,7 +289,7 @@ public class MainActivity extends Form implements HandlesEventDispatching {
         feedbackBox.BackgroundColor(TEXTBOX_BACKGROUND_COLOR);
 
         padDivider4.Height(PAD_DIVIDER_HEIGHT);
-        findDeviceButton.Text("Find my device");
+        findDeviceButton.Text(ui_txt_FIND_DEVICE);
         findDeviceButton.FontSize(SIZE_LABELS_TXT);
         findDeviceButton.FontTypeface(FONT_NUMBER);
         findDeviceButton.WidthPercent(100);
@@ -273,14 +297,14 @@ public class MainActivity extends Form implements HandlesEventDispatching {
         findDeviceButton.TextColor(Component.COLOR_WHITE);
         findDeviceButton.Visible(true);
         findDeviceButton.HeightPercent(8);
-        connectLocalDeviceButton.Text("Connect to device");
+        connectLocalDeviceButton.Text(ui_txt_CONNECT_DEVICE);
         connectLocalDeviceButton.FontSize(SIZE_LABELS_TXT);
         connectLocalDeviceButton.FontTypeface(FONT_NUMBER);
         connectLocalDeviceButton.WidthPercent(100);
         connectLocalDeviceButton.BackgroundColor(BUTTON_COLOR);
         connectLocalDeviceButton.TextColor(Component.COLOR_WHITE);
         connectLocalDeviceButton.Visible(false);
-        configureDeviceButton.Text("Press to Get config");
+        configureDeviceButton.Text(ui_txt_READ_DEVICE);
         configureDeviceButton.FontSize(SIZE_LABELS_TXT);
         configureDeviceButton.FontTypeface(FONT_NUMBER);
         configureDeviceButton.WidthPercent(100);
@@ -354,10 +378,8 @@ public class MainActivity extends Form implements HandlesEventDispatching {
                 // once "Find my device" [by name] has completed there should be an IP address available
                 // Is "browse local network" an Android config requirement
                 testConnection.Url( config_Proto + txt_IPv4.Text() + config_Port);
-                feedbackBox.Text( messages("<b>Connection attempt to:</b> "+testConnection.Url()));
-                dbg("Connection attempt to: "+testConnection.Url());
+                feedbackBox.Text( messages("<b>"+ui_txt_CONNECTION_ATTEMPT+"</b> "+testConnection.Url()));
                 testConnection.Get();
-                dbg("A");
                 padDivider3.FontBold(true);
                 return true;
             }
@@ -368,14 +390,15 @@ public class MainActivity extends Form implements HandlesEventDispatching {
                     padDivider3.FontBold(true);
                     lbl_IPv4.Visible(true);
                     txt_IPv4.Visible(true);
-                    feedbackBox.Text(messages("<b>Sending</b> " ));
-                    feedbackBox.Text(messages("<b>To:</b> " + relayServerConnection.Url()));
+                    feedbackBox.Text(messages("<b>"+ui_txt_CONNECTION_SENDING+"</b> " + makeGetString_IPv4()));
                     relayServerConnection.Get();
                 }
                 return true;
             }
             else if (component.equals(configureDeviceButton)) {
                 if (d1_ModeWrite) {
+                    notifier_Messages.ShowAlert(ui_txt_ERR_NOT_IMPLEMENTED);
+                    if (true){                    return true;}
                     activity = "";
                     padDivider3.FontBold(true);
                     d1_Data = makeConfig();
@@ -383,8 +406,7 @@ public class MainActivity extends Form implements HandlesEventDispatching {
                         sensorUnitConnection.Url( config_Proto + txt_IPv4.Text() + config_Port + config_Write);
                         sensorUnitConnection.PostText(d1_JSON.toString());
                         sensorUnitConnection.RequestHeaders(myHeaders());
-                        feedbackBox.Text(messages("<b>Sending:</b> " + d1_JSON));
-                        feedbackBox.Text(messages("<b>To:</b> " + sensorUnitConnection.Url()));
+                        feedbackBox.Text(messages("<b>"+ui_txt_CONNECTION_SENDING+":</b> " + d1_JSON));
                     }
                 }
                 else {
@@ -405,7 +427,6 @@ public class MainActivity extends Form implements HandlesEventDispatching {
                test1+="sensor=IPv4";
         return test1;
     }
-
     eepromStruct makeConfig(){
         d1_Data=new eepromStruct();
         int v1= Integer.valueOf(txt_Status.Text());
@@ -432,7 +453,6 @@ public class MainActivity extends Form implements HandlesEventDispatching {
         }
         return true;
     }
-
     void enlargeTable(){
         NetworkSetup.Rows(4);
         NetworkSetup.Columns(4);
@@ -444,6 +464,7 @@ public class MainActivity extends Form implements HandlesEventDispatching {
         lbl_SSID.TextAlignment(Component.ALIGNMENT_OPPOSITE);
         lbl_SSID.FontSize(SIZE_LABELS_TXT);
         lbl_SSID.FontTypeface(FONT_NUMBER);
+        lbl_SSID.TextColor(Component.COLOR_WHITE);
         txt_SSID =new TextBox(NetworkSetup);
         txt_SSID.Visible(true);
         txt_SSID.FontSize(SIZE_LABELS_TXT);
@@ -463,6 +484,7 @@ public class MainActivity extends Form implements HandlesEventDispatching {
         lbl_PSK.Text("PSK");
         lbl_PSK.FontTypeface(FONT_NUMBER);
         lbl_PSK.Visible(true);
+        lbl_PSK.TextColor(Component.COLOR_WHITE);
         txt_PSK =new TextBox(NetworkSetup);
         txt_PSK.FontSize(SIZE_LABELS_TXT);
         txt_PSK.Row(3);
@@ -488,7 +510,7 @@ public class MainActivity extends Form implements HandlesEventDispatching {
 
     void handleNetworkResponse(Component c, String status, String textOfResponse){
         padDivider3.FontBold(false);
-//        feedbackBox.Text(messages("<b>Received:</b> " + textOfResponse+"<br>"));
+        feedbackBox.Text(messages("<br><b>"+ui_txt_CONNECTION_RECEIVED+":</b> " + textOfResponse+"<br>"));
         if (status.equals("200") ) try {
             JSONObject parser = new JSONObject(textOfResponse);
             if (parser.getString("Status").equals("OK")) {
@@ -508,10 +530,10 @@ public class MainActivity extends Form implements HandlesEventDispatching {
                         boolean a = (d1_IPv4.compareTo(parser.getString("IPv4")) == 0);
                         if (a) {
                             // Good to go to configuration of settings now.
-                            dbg("Successful connection to unit.");
+                            dbg(ui_txt_CONNECTION_SUCCESS);
                             activity = "";
                             feedbackBox.HeightPercent(30);
-                            feedbackBox.Text(messages("<b>Successful connection to unit.</b>"));
+                            feedbackBox.Text(messages("<b>"+ui_txt_CONNECTION_SUCCESS+".</b>"));
                             txt_IPv4.TextColor(COLOR_SUCCESS_GREEN);
                             txt_IPv4.FontBold(true);
                             enlargeTable();
@@ -527,14 +549,13 @@ public class MainActivity extends Form implements HandlesEventDispatching {
                     // on the off-chance there's another on the network, or data error
                     boolean a = (txt_DeviceName.Text().compareTo(parser.getString("config_DeviceName")) == 0);
                     if (a) {
-                        dbg("Successful read from unit.");
+                        dbg(ui_txt_READ_SUCCESS);
                         activity = "";
-                        feedbackBox.Text(messages("<b>Successful read from unit.</b>"));
+                        feedbackBox.Text(messages("<b>"+ui_txt_READ_SUCCESS+".</b>"));
                         txt_IPv4.TextColor(Component.COLOR_BLACK);
                         txt_DeviceName.TextColor(COLOR_SUCCESS_GREEN);
                         txt_IPv4.FontBold(false);
                         txt_DeviceName.FontBold(true);
-                        dbg(parser.getString("config_SSID"));
                         txt_SSID.Text(parser.getString("config_SSID"));
                         txt_PSK.Text(parser.getString("config_PSK"));
                         if (isNumeric(parser.getString("config_Status"))) {
@@ -555,12 +576,12 @@ public class MainActivity extends Form implements HandlesEventDispatching {
                             if (parser.getString("active").equals(s)) {
                                 // this feckin thing starts at 1, not 0
                                 spin_Active.SelectionIndex(i+1);
-                                dbg("Match "+s+" "+Integer.toString(i));
                             }
                         }
                         // if we're not in write mode, offer that
                         if (!d1_ModeWrite) {
-                            configureDeviceButton.Text("Update EEPROM");
+                            configureDeviceButton.Text(ui_txt_WRITE_DEVICE);
+                            d1_ModeWrite=!d1_ModeWrite;
                         }
                     } else {
                         dbg(parser.getString("config_DeviceName"));
@@ -571,9 +592,9 @@ public class MainActivity extends Form implements HandlesEventDispatching {
             }
         }
         catch (JSONException e) {
-            notifier_Messages.ShowAlert("JSON Error 422");
+            notifier_Messages.ShowAlert(ui_txt_ERR_422);
             dbg("android JSON exception (" + textOfResponse + ")");
-            feedbackBox.Text (messages("android JSON exception (" + textOfResponse + ")"));
+            feedbackBox.Text (messages("Android JSONException (" + textOfResponse + ")"));
         }
         else {
             feedbackBox.Text( messages( "Error status code is "+status) );
@@ -585,68 +606,15 @@ public class MainActivity extends Form implements HandlesEventDispatching {
     }
     public static boolean isNumeric(String string) {
         int intValue;
-//        System.out.println(String.format("Parsing string: \"%s\"", string));
         if(string == null || string.equals("")) {
-            System.out.println("String cannot be parsed, it is null or empty.");
             return false;
         }
         try {
             intValue = Integer.parseInt(string);
             return true;
-        } catch (NumberFormatException e) {
-            System.out.println("Input String cannot be parsed to Integer.");
+        }
+        catch (NumberFormatException e) {
         }
         return false;
     }
 }
-
-        // Here be monsters:
-        //                            switch (parser.getString("active")) {
-//                                case "N" : ;
-//                                case "A" :;
-//                                case "Y" :;
-//                                default :;
-//                            }
-//                            dbg(Integer.toString(i));
-//                            System.err.println(tmp2);
-//                            String[] p;
-//                            p= tmp2.toStringArray();
-//                            String s=p[0];
-//                            String t=p[1];
-//                            String u=p[2];
-//                            System.err.println(p);
-//                            System.err.println(s);
-//                            System.err.println(t);
-//                            dbg(u);
-//                            dbg(parser.getString("active"));
-
-//                        char[] ch;
-//                        ch[0]='Y';
-//                        ch=(parser.getString("active").getChars(0,1,ch));
-//                        dbg(String.valueOf(ch));
-//                        spin_Active.SelectionIndex(2);
-//                        YailList tmp2=spin_Active.Elements();
-//                        String[] tmp3= tmp2.toStringArray();
-//                        for (int i=0; i<tmp2.size(); i++) {
-//                            char[] ch = spin_Active.Selection().substring(0,1).toUpperCase().toCharArray();
-//                            if (parser.getString("active").equals(tmp3[i])) {
-//                                spin_Active.SelectionIndex(2);
-////                                spin_Active.Selection("Y");
-//                                txt_active.Text(parser.getString("active"));
-//                                dbg("Match");
-//                            }
-//                            dbg(Integer.toString(i));
-////                            String g= YailListElementToString(tmp2.get(i));//.toString();
-//                            System.err.println(tmp2);
-//                            String[] p;
-//                            p= tmp2.toStringArray();
-//                            String s=p[0];
-//                            String t=p[1];
-//                            String u=p[2];
-//                            System.err.println(p);
-//                            System.err.println(s);
-//                            System.err.println(t);
-//                            dbg(u);
-//                            dbg(parser.getString("active"));
-////                            dbg(parser.getString(g));
-//                        }
