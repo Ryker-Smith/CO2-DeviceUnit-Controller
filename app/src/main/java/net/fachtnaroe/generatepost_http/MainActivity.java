@@ -111,6 +111,9 @@ public class MainActivity extends Form implements HandlesEventDispatching {
     private static final int d1_MINATTEMPTS = 0;
     private static final int d1_MAXATTEMPTS = 10;
 
+    private static final int seconds=1000;
+    private static final int minutes=60000;
+
     class eepromStruct {
         public char active;
         public byte config_Status;
@@ -327,7 +330,8 @@ public class MainActivity extends Form implements HandlesEventDispatching {
 
         notifier_Messages.BackgroundColor(Component.COLOR_WHITE);
         notifier_Messages.TextColor(color_BUTTON_BACKGROUND);
-        ticker.TimerInterval(1000);
+
+        ticker.TimerInterval(60 * seconds);
         ticker.TimerEnabled(true);
         ticker.TimerAlwaysFires(false); // not required when app is minimized
 
