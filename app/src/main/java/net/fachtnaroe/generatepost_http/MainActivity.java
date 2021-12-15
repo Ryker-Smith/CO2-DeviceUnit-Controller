@@ -58,7 +58,7 @@ public class MainActivity extends Form implements HandlesEventDispatching {
     private static final String default_WIFI_PSK = "password";
     private static final String default_WIFI_SSID = "someSSID";
     // providing a NAME_DEFAULT_DEVICE saves on testing/debugging time
-    private static final String default_DEVICE_NAME ="TCFE-CO2-12-34";
+    private static final String default_DEVICE_NAME ="TCFE-CO2-98-88";
     // UI strings for localisation
     private static final String ui_txt_STATUS_POSSIBLES = "Status\n(0/4/8) ";
     private static final String ui_txt_MAIN_HEAD="Update EEPROM Settings";
@@ -447,9 +447,9 @@ public class MainActivity extends Form implements HandlesEventDispatching {
                     padDivider3.FontBold(true);
                     if (config2JSON()) {
                         sensorUnitConnection.Url( config_Proto + txt_IPv4.Text() + config_Port + config_Write);
-                        String m="Content-Type: application/json\n\n";
-                        m+=d1_JSON.toString();
-                        m+="\n";
+//                        String m="Content-Type: application/json\nPOSTDATA=";
+                        String m=d1_JSON.toString();
+//                        m+="";
                         sensorUnitConnection.PostText(m);
                         dbg(sensorUnitConnection.Url());
                         dbg(m);
@@ -486,7 +486,7 @@ public class MainActivity extends Form implements HandlesEventDispatching {
 
     boolean config2JSON() {
         try {
-            d1_JSON.put("config_Active", spinnerValue.substring(0,1));
+            d1_JSON.put("active", spinnerValue.substring(0,1));
             d1_JSON.put("config_Status",(int) Integer.valueOf(txt_Status.Text()));
             d1_JSON.put("config_Attempts", (int)Integer.valueOf(txt_Attempts.Text()));
             d1_JSON.put("config_SSID", txt_SSID.Text());//raw.config_SSID.toString());
