@@ -8,6 +8,7 @@ import com.google.appinventor.components.runtime.HandlesEventDispatching;
 import com.google.appinventor.components.runtime.HorizontalArrangement;
 import com.google.appinventor.components.runtime.Label;
 import com.google.appinventor.components.runtime.Notifier;
+import com.google.appinventor.components.runtime.PasswordTextBox;
 import com.google.appinventor.components.runtime.Spinner;
 import com.google.appinventor.components.runtime.TableArrangement;
 import com.google.appinventor.components.runtime.TextBox;
@@ -19,7 +20,12 @@ import com.google.appinventor.components.runtime.util.YailList;
 import org.json.JSONException;
 import org.json.JSONObject;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Iterator;
 import java.util.List;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 
 import static net.fachtnaroe.generatepost_http.GeneralApplicationSettings.EXTERNALLY_STORED_1;
 
@@ -29,7 +35,8 @@ public class MainActivity extends Form implements HandlesEventDispatching {
     VerticalScrollArrangement Screen1;
     StatusBarTools statusBar;
     HorizontalArrangement fiddlyTopBits;
-    TextBox txt_SSID, txt_PSK, txt_DeviceName, txt_IPv4, txt_active;
+    TextBox txt_SSID, txt_DeviceName, txt_IPv4, txt_active;
+    PasswordTextBox txt_PSK;
     Label lbl_SSID, lbl_PSK, lbl_DeviceName, lbl_IPv4, padDivider3;
     Button configureDeviceButton, findDeviceButton, connectLocalDeviceButton, testLocalDeviceButton;
     Web sensorUnitConnection, relayServerConnection, testConnection;
@@ -47,7 +54,6 @@ public class MainActivity extends Form implements HandlesEventDispatching {
             config_Write ="/setconfig",
             statusValues="Choose,No,Attempting,Yes",
             spinnerValue="";
-    int programProgress = 0;
     boolean d1_ModeWrite=false;
 
     private static final int max_SSID = 32;
@@ -75,6 +81,7 @@ public class MainActivity extends Form implements HandlesEventDispatching {
     private static final String ui_txt_CONNECTION_SUCCESS="Successfully connected to unit";
     private static final String ui_txt_READ_SUCCESS="Successful read from Sensor Unit";
     private static final String ui_txt_WRITE_SUCCESS="Successful write to Sensor Unit";
+    private static final String ui_txt_WRITE_SUCCESS_ADVISORY="Your changes will take effect when you restart the Sensor Unit";
     private static final String ui_txt_ERR_NOT_IMPLEMENTED="Not Implemented";
     private static final String ui_txt_ERR_422="JSON Error 422";
     /* Tá ná dáthanna déanta mar an gcéanna le HTML, ach le FF ar
@@ -111,8 +118,8 @@ public class MainActivity extends Form implements HandlesEventDispatching {
         public char[] config_DeviceName = new char[max_DeviceName];
     }
 
-    eepromStruct d1_Data;
-    JSONObject d1_JSON;
+    eepromStruct d1_Data=new eepromStruct();
+    JSONObject d1_JSON=new JSONObject();
 
     protected void $define() {
         /* this next allows the app to use the full screen. In fact,
@@ -126,10 +133,13 @@ public class MainActivity extends Form implements HandlesEventDispatching {
         Form a = this;
         Integer w = a.$form().Width();
         Integer h = a.$form().Height();
+        Label spaceAtTheTop=new Label((this));
+        spaceAtTheTop.Height(20);
+        Label heading = new Label(this);
         Screen1 = new VerticalScrollArrangement(this);
         // each component, listed in order
         statusBar=new StatusBarTools(Screen1);
-        Label heading = new Label(Screen1);
+
         fiddlyTopBits = new HorizontalArrangement(Screen1);
         Label lblActive = new Label(fiddlyTopBits);
         HorizontalArrangement spinnerGroup=new HorizontalArrangement(fiddlyTopBits);
@@ -397,16 +407,23 @@ public class MainActivity extends Form implements HandlesEventDispatching {
             }
             else if (component.equals(configureDeviceButton)) {
                 if (d1_ModeWrite) {
-                    notifier_Messages.ShowAlert(ui_txt_ERR_NOT_IMPLEMENTED);
-                    if (true){                    return true;}
+                    // we're going to update the EEPROM
+//                    notifier_Messages.ShowAlert(ui_txt_ERR_NOT_IMPLEMENTED);
+//                    if (true){                    return true;}
                     activity = "";
                     padDivider3.FontBold(true);
-                    d1_Data = makeConfig();
-                    if (config2JSON(d1_Data)) {
+//                    d1_Data = makeConfig();
+                    dbg("A");
+                    if (config2JSON()) {
                         sensorUnitConnection.Url( config_Proto + txt_IPv4.Text() + config_Port + config_Write);
-                        sensorUnitConnection.PostText(d1_JSON.toString());
-                        sensorUnitConnection.RequestHeaders(myHeaders());
+                        String m="Content-Type: application/json\n\n";
+                        m+=d1_JSON.toString();
+                        m+="\n";
+                        sensorUnitConnection.PostText(m);
+                        dbg(sensorUnitConnection.Url());
+                        dbg(m);
                         feedbackBox.Text(messages("<b>"+ui_txt_CONNECTION_SENDING+":</b> " + d1_JSON));
+                        dbg("B");
                     }
                 }
                 else {
@@ -414,12 +431,25 @@ public class MainActivity extends Form implements HandlesEventDispatching {
                     padDivider3.FontBold(true);
                     sensorUnitConnection.Url( config_Proto + txt_IPv4.Text() + config_Port + config_Read);
                     sensorUnitConnection.Get();
+                    dbg("C");
                 }
                 return true;
             }
         }
         return false;
     }
+
+    public com.google.appinventor.components.runtime.util.YailList myHeaders() {
+        com.google.appinventor.components.runtime.util.YailList list = new com.google.appinventor.components.runtime.util.YailList();
+        List<com.google.appinventor.components.runtime.util.YailList> arrlist = new ArrayList<>();
+//        com.google.appinventor.components.runtime.util.YailList FTS=new com.google.appinventor.components.runtime.util.YailList();
+        Collection coll;
+
+
+
+        return com.google.appinventor.components.runtime.util.YailList.makeList(arrlist);
+    }
+
     String makeGetString_IPv4(){
         String test1 = URL_MAIN+"?device=";
                test1+= txt_DeviceName.Text();
@@ -427,26 +457,15 @@ public class MainActivity extends Form implements HandlesEventDispatching {
                test1+="sensor=IPv4";
         return test1;
     }
-    eepromStruct makeConfig(){
-        d1_Data=new eepromStruct();
-        int v1= Integer.valueOf(txt_Status.Text());
-        d1_Data.config_Status= (byte) v1;
-        int v2= Integer.valueOf(txt_Attempts.Text());
-        d1_Data.config_Attempts= (byte) v2;
-        d1_Data.config_SSID= txt_SSID.Text().toCharArray();
-        d1_Data.config_PSK=txt_PSK.Text().toCharArray();
-        d1_Data.config_DeviceName=txt_DeviceName.Text().toCharArray();
-        return d1_Data;
-    }
-    boolean config2JSON(eepromStruct raw) {
+
+    boolean config2JSON() {
         try {
-            d1_JSON=new JSONObject();
-            d1_JSON.put("config_Active", raw.active);
-            d1_JSON.put("config_Status",raw.config_Status);
-            d1_JSON.put("config_Attempts",raw.config_Attempts);
-            d1_JSON.put("config_SSID",raw.config_SSID);
-            d1_JSON.put("config_PSK",raw.config_PSK);
-            d1_JSON.put("config_DeviceName",raw.config_DeviceName);
+            d1_JSON.put("config_Active", spinnerValue.substring(0,1));
+            d1_JSON.put("config_Status",(int) Integer.valueOf(txt_Status.Text()));
+            d1_JSON.put("config_Attempts", (int)Integer.valueOf(txt_Attempts.Text()));
+            d1_JSON.put("config_SSID", txt_SSID.Text());//raw.config_SSID.toString());
+            d1_JSON.put("config_PSK",txt_PSK.Text());
+            d1_JSON.put("config_DeviceName",txt_DeviceName.Text());
         }
         catch (Exception e) {
             return false;
@@ -485,7 +504,7 @@ public class MainActivity extends Form implements HandlesEventDispatching {
         lbl_PSK.FontTypeface(FONT_NUMBER);
         lbl_PSK.Visible(true);
         lbl_PSK.TextColor(Component.COLOR_WHITE);
-        txt_PSK =new TextBox(NetworkSetup);
+        txt_PSK =new PasswordTextBox(NetworkSetup);
         txt_PSK.FontSize(SIZE_LABELS_TXT);
         txt_PSK.Row(3);
         txt_PSK.Column(2);
@@ -500,12 +519,6 @@ public class MainActivity extends Form implements HandlesEventDispatching {
     String messages(String addition) {
         activity += addition;
         return activity;
-    }
-    public com.google.appinventor.components.runtime.util.YailList myHeaders() {
-        com.google.appinventor.components.runtime.util.YailList list = new com.google.appinventor.components.runtime.util.YailList();
-        List<com.google.appinventor.components.runtime.util.YailList> arrlist = new ArrayList<>();
-        com.google.appinventor.components.runtime.util.YailList FTS=new com.google.appinventor.components.runtime.util.YailList();
-        return com.google.appinventor.components.runtime.util.YailList.makeList(arrlist);
     }
 
     void handleNetworkResponse(Component c, String status, String textOfResponse){
@@ -522,7 +535,8 @@ public class MainActivity extends Form implements HandlesEventDispatching {
                             connectLocalDeviceButton.Visible(true);
                         }
                     }
-                } else if (c.equals(testConnection)) {
+                }
+                else if (c.equals(testConnection)) {
                     if ((parser.getString("IPv4").length() >= 7)) {
                         /* if the Sensor Unit replies with its IP address (plus other data,
                             then we're connected, agus ag tarraingt díosal. */
@@ -538,14 +552,16 @@ public class MainActivity extends Form implements HandlesEventDispatching {
                             txt_IPv4.FontBold(true);
                             enlargeTable();
                             configureDeviceButton.Visible(true);
-                        } else {
+                        }
+                        else {
                             // things should get _this_ bad.
                             dbg(d1_IPv4);
                             dbg(parser.getString("IPv4"));
                             dbg(Integer.valueOf(d1_IPv4.compareTo(parser.getString("IPv4"))).toString());
                         }
                     }
-                } else if (c.equals(sensorUnitConnection)) {
+                }
+                else if (c.equals(sensorUnitConnection)) {
                     // on the off-chance there's another on the network, or data error
                     boolean a = (txt_DeviceName.Text().compareTo(parser.getString("config_DeviceName")) == 0);
                     if (a) {
@@ -583,10 +599,10 @@ public class MainActivity extends Form implements HandlesEventDispatching {
                             configureDeviceButton.Text(ui_txt_WRITE_DEVICE);
                             d1_ModeWrite=!d1_ModeWrite;
                         }
-                    } else {
+                    }
+                    else {
                         dbg(parser.getString("config_DeviceName"));
                         dbg(txt_DeviceName.Text());
-
                     }
                 }
             }
@@ -614,7 +630,40 @@ public class MainActivity extends Form implements HandlesEventDispatching {
             return true;
         }
         catch (NumberFormatException e) {
+            //
         }
         return false;
     }
 }
+// Here be monsters:
+//    eepromStruct makeConfig(){
+////        d1_Data=new eepromStruct();
+//        char[] ch={};
+//        if (spin_Active.SelectionIndex() != 0) {
+//            ch =spin_Active.Selection().substring(0, 1).toUpperCase().toCharArray();
+//        }
+//        else {
+//            ch[0]='N';
+//        }
+//        dbg(String.valueOf(ch[0]));
+//        d1_Data.active=(char) ch[0];
+//        int v1= Integer.valueOf(txt_Status.Text());
+//        dbg(Integer.toString(v1));
+//        d1_Data.config_Status= (byte) v1;
+//        int v2= Integer.valueOf(txt_Attempts.Text());
+//        dbg(Integer.toString(v2));
+//        d1_Data.config_Attempts= (byte) v2;
+//        dbg(Integer.toString(d1_Data.config_Attempts));
+//        dbg("SSID "+txt_SSID.Text());
+////        d1_Data.config_SSID=s.;
+////        d1_Data.config_SSID= txt_SSID.Text().toCharArray();
+////        for (int i=0; i<txt_SSID.Text().length(); i++) {
+//        int i = txt_SSID.Text().length();
+//        if (i > max_SSID) {
+//            i=max_SSID;
+//        }
+//        txt_SSID.Text().getChars(0, i-1,d1_Data.config_SSID,0);
+//        d1_Data.config_PSK=txt_PSK.Text().toCharArray();
+//        d1_Data.config_DeviceName=txt_DeviceName.Text().toCharArray();
+//        return d1_Data;
+//    }
