@@ -1,5 +1,7 @@
 package net.fachtnaroe.generatepost_http;
 
+// Mostly, a technology demonstrator
+
 import com.google.appinventor.components.runtime.Button;
 import com.google.appinventor.components.runtime.Clock;
 import com.google.appinventor.components.runtime.Component;
