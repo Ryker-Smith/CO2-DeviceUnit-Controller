@@ -51,6 +51,8 @@ public class MainActivity extends Form implements HandlesEventDispatching {
             statusValues="Choose,No,Attempting,Yes",
             spinnerValue="";
     boolean d1_ModeWrite=false;
+    boolean d1_isConnected=false;
+    boolean d1_attemptingReboot=false;
 
     private static final int max_SSID = 32;
     private static final int max_PSK = 64;
@@ -65,8 +67,6 @@ public class MainActivity extends Form implements HandlesEventDispatching {
     private static final String ui_txt_MAIN_HEAD="Update EEPROM Settings";
     private static final String ui_txt_STATUS_ATTEMPTS_COUNT="Retry\nattempts ";
     private static final String ui_txt_DEVICE_NAME="Device Name";
-    private static final String ui_txt_IP_ADDRESS="IP address";
-    private static final String ui_txt_ACTIVITY="Activity";
     private static final String ui_txt_FIND_DEVICE="Find my device";
     private static final String ui_txt_CONNECT_DEVICE="Connect to device";
     private static final String ui_txt_READ_DEVICE="Read Sensor Unit config";
@@ -75,9 +75,11 @@ public class MainActivity extends Form implements HandlesEventDispatching {
     private static final String ui_txt_CONNECTION_SENDING="Sending";
     private static final String ui_txt_CONNECTION_RECEIVED="Received";
     private static final String ui_txt_CONNECTION_SUCCESS="Successfully connected to unit";
-    private static final String ui_txt_READ_SUCCESS="Successful read from Sensor Unit";
-    private static final String ui_txt_WRITE_SUCCESS="Successful write to Sensor Unit";
-    private static final String ui_txt_WRITE_SUCCESS_ADVISORY="Your changes will take effect when you restart the Sensor Unit";
+    private static final String ui_txt_CONNECTION_FAILURE="Could not connect to Sensor Unit";
+    private static final String ui_txt_CONNECT_BEFORE_REBOOT="Connect to device before attempting reboot";
+    private static final String ui_txt_REBOOT_NOW="Sensor Unit is now rebooting";
+    private static final String ui_txt_READ_SUCCESS="Successfully read from Sensor Unit";
+    private static final String ui_txt_WRITE_SUCCESS="Successfully wrote to Sensor Unit";
     private static final String ui_txt_ERR_NOT_IMPLEMENTED="Not Implemented";
     private static final String ui_txt_ERR_422="JSON Error 422";
     private static final String ui_TXT_ERROR_PREFIX="Error status code is ";
@@ -107,6 +109,7 @@ public class MainActivity extends Form implements HandlesEventDispatching {
     private static final int font_NUMBER_DEFAULT = 1;
     private static final int font_NUMBER_FIXED = 3;
     private static final int size_PADDING_HEIGHT = 2;
+    private static final int error_NETWORK_GENERAL=1101;
 
     private static final int d1_OUTOFBOX = 0;
     private static final int d1_ATTEMPTING = 2;
@@ -117,16 +120,7 @@ public class MainActivity extends Form implements HandlesEventDispatching {
     private static final int seconds=1000;
     private static final int minutes=60000;
 
-    class eepromStruct {
-        public char active;
-        public byte config_Status;
-        public byte config_Attempts;
-        public char[] config_SSID = new char[max_SSID];
-        public char[] config_PSK = new char[max_PSK];
-        public char[] config_DeviceName = new char[max_DeviceName];
-    }
-
-    eepromStruct d1_Data=new eepromStruct();
+    arduino_eeprom_data d1_Data=new arduino_eeprom_data();
     JSONObject d1_JSON=new JSONObject();
     Clock ticker=new Clock(this);
     Image animatorImage;
@@ -314,15 +308,15 @@ public class MainActivity extends Form implements HandlesEventDispatching {
 
         horz_ActivityOrRestart.WidthPercent(100);
         horz_ActivityOrRestart.AlignHorizontal(Component.ALIGNMENT_CENTER);
-        horz1.WidthPercent(28);
+        horz1.WidthPercent(20);
         horz1.AlignHorizontal(Component.ALIGNMENT_CENTER);
-        horz2.WidthPercent(15);
+        horz2.WidthPercent(20);
         horz2.AlignHorizontal(Component.ALIGNMENT_CENTER);
-        horz3.WidthPercent(15);
+        horz3.WidthPercent(20);
         horz3.AlignHorizontal(Component.ALIGNMENT_CENTER);
-        horz4.WidthPercent(15);
+        horz4.WidthPercent(20);
         horz4.AlignHorizontal(Component.ALIGNMENT_CENTER);
-        horz5.WidthPercent(27);
+        horz5.WidthPercent(20);
         horz5.AlignHorizontal(Component.ALIGNMENT_CENTER);
         btn_Home.Image("button_image_home_foreground.png");
         btn_Home.Width(buttonsAndAnimatorSize);
@@ -335,7 +329,7 @@ public class MainActivity extends Form implements HandlesEventDispatching {
         animatorClock.TimerInterval(animatorClock_Interval);
         animatorClock.TimerEnabled(false);
 
-        btn_Restart.Image("button_image_reboot_2.png");
+        btn_Restart.Image("button_image_reboot.png");
         btn_Restart.Width(buttonsAndAnimatorSize);
         btn_Restart.Height(buttonsAndAnimatorSize);
         btn_Restart.TextAlignment(Component.ALIGNMENT_CENTER);
@@ -385,6 +379,7 @@ public class MainActivity extends Form implements HandlesEventDispatching {
         EventDispatcher.registerEventForDelegation(this, formName, "AfterSelecting");
         EventDispatcher.registerEventForDelegation(this, formName, "TimedOut"); // for network
         EventDispatcher.registerEventForDelegation(this, formName, "Timer"); // for updates
+        EventDispatcher.registerEventForDelegation(this, formName, "ErrorOccurred"); // for updates
     }
 
     public boolean dispatchEvent(Component component, String componentName, String eventName, Object[] params) {
@@ -393,6 +388,25 @@ public class MainActivity extends Form implements HandlesEventDispatching {
         if (eventName.equals("BackPressed")) {
             // this would be a great place to do something useful
             return true;
+        }
+        else if (eventName.equals("ErrorOccurred")) {
+            Integer tmp_error=Integer.valueOf((Integer)params[2]);
+            String tmp_message=(String)(params[3]);
+            if (tmp_error.equals(error_NETWORK_GENERAL)) {
+                animatorClock.TimerEnabled(false);
+                animatorImage.Picture(animatorImage_0);
+                if (d1_attemptingReboot) {
+                    d1_attemptingReboot=false;
+                    d1_isConnected=false;
+                    notifier_Messages.ShowMessageDialog(ui_txt_REBOOT_NOW,ui_txt_MESSAGE_HEADING,ui_txt_BUTTON_OK);
+                    reduceTable();
+                    return true;
+                }
+                else if(!d1_isConnected) {
+                    notifier_Messages.ShowMessageDialog(ui_txt_CONNECTION_FAILURE,ui_txt_MESSAGE_HEADING_ERROR,ui_txt_BUTTON_OK);
+                    return true;
+                }
+            }
         }
         else if (eventName.equals("AfterSelecting")) {
             dbg(spin_Active.Selection());
@@ -425,7 +439,7 @@ public class MainActivity extends Form implements HandlesEventDispatching {
                 // turn off the timer while the event is being processed
                 ticker.TimerEnabled(false);
                 // process whatever the timer is for ...
-                dbg("ticker has ticked");
+//                dbg("ticker has ticked");
                 // turn the timer back on after the event is processed.
                 ticker.TimerEnabled(true);
                 // yeah, I turned it off and then back on again. But that's important, as ticks can collide
@@ -489,7 +503,15 @@ public class MainActivity extends Form implements HandlesEventDispatching {
                 return true;
             }
             else if (component.equals(btn_Restart)) {
-
+                if (!d1_isConnected) {
+                    notifier_Messages.ShowMessageDialog(ui_txt_CONNECT_BEFORE_REBOOT, ui_txt_MESSAGE_HEADING, ui_txt_BUTTON_OK);
+                }
+                else {
+                    d1_attemptingReboot=true;
+                    connection_TestLocal.Url( config_Proto + txt_IPv4.Text() + config_Port+d1_Data.rebootstring);
+                    connection_TestLocal.Get();
+                    animatorClock.TimerEnabled(true);
+                }
                 // send reboot instruction to the Sensor Unit
                 return true;
             }
@@ -518,9 +540,6 @@ public class MainActivity extends Form implements HandlesEventDispatching {
             else if (component.equals(btn_device_Configure)) {
                 animatorClock.TimerEnabled(true);
                 if (d1_ModeWrite) {
-                    // we're going to update the EEPROM
-//                    notifier_Messages.ShowAlert(ui_txt_ERR_NOT_IMPLEMENTED);
-//                    if (true){                    return true;}
                     activity = "";
                     if (config2JSON()) {
                         connection_SensorUnit.Url( config_Proto + txt_IPv4.Text() + config_Port + config_Write);
@@ -615,13 +634,20 @@ public class MainActivity extends Form implements HandlesEventDispatching {
         fiddlyTopBits.Visible(true);
     }
     void reduceTable(){
+        NetworkSetup.Rows(2);
+        NetworkSetup.Columns(3);
         lbl_SSID.Visible(false);
         txt_SSID.Visible(false);
         lbl_PSK.Visible(false);
         txt_PSK.Visible(false);
         fiddlyTopBits.Visible(false);
-        NetworkSetup.Rows(2);
-        NetworkSetup.Columns(2);
+        lbl_IPv4.Visible(false);
+        txt_IPv4.Visible(false);
+
+//        txt_DeviceName.Row(0);
+        btn_device_ConnectionTest.Visible(true);
+        btn_device_Configure.Visible(false);
+
     }
 
     String messages(String addition) {
@@ -635,15 +661,26 @@ public class MainActivity extends Form implements HandlesEventDispatching {
         if (textOfResponse.equals("")) {
             textOfResponse=status;
         }
-        feedbackBox.Text(messages("<br><b>" + ui_txt_CONNECTION_RECEIVED + ":</b> " + textOfResponse + "<br>"));
         if (status.equals("200")) try {
             if (c.equals(connection_SensorUnit) && (d1_ModeWrite)) {
                 // if we're in write mode, a 200 is success, and all the unit will offer
                 notifier_Messages.ShowMessageDialog(ui_txt_NEXT_REBOOT_FOR_CHANGES, ui_txt_MESSAGE_HEADING, ui_txt_BUTTON_OK);
                 btn_device_Configure.Text(ui_txt_READ_DEVICE);
                 d1_ModeWrite = !d1_ModeWrite;
+                activity="";
+                feedbackBox.Text(messages("<b>"+ui_txt_WRITE_SUCCESS+"</b>"));
             }
+            else if (c.equals(connection_TestLocal) && (d1_isConnected)) {
+                // if we're in write mode, a 200 is success, and all the unit will offer
+                notifier_Messages.ShowMessageDialog(ui_txt_REBOOT_NOW, ui_txt_MESSAGE_HEADING, ui_txt_BUTTON_OK);
+                d1_ModeWrite = !d1_ModeWrite;
+                d1_isConnected = !d1_isConnected;
+                activity="";
+                feedbackBox.Text(messages("<b>"+ui_txt_WRITE_SUCCESS+"</b>"));
+            }
+
             else {
+                feedbackBox.Text(messages("<br><b>" + ui_txt_CONNECTION_RECEIVED + ":</b> " + textOfResponse + "<br>"));
                 // the special case out of the way, we proceed to look at the data received
                 JSONObject parser = new JSONObject(textOfResponse);
                 if (parser.getString("Status").equals("OK")) {
@@ -670,6 +707,7 @@ public class MainActivity extends Form implements HandlesEventDispatching {
                                 txt_IPv4.TextColor(color_SUCCESS_GREEN);
                                 txt_IPv4.FontBold(true);
                                 enlargeTable();
+                                d1_isConnected=true;
                                 btn_device_Configure.Visible(true);
                             } else {
                                 // things should get _this_ bad.
