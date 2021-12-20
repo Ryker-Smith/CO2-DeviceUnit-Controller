@@ -56,9 +56,6 @@ public class MainActivity extends Form implements HandlesEventDispatching {
     boolean d1_isConnected=false;
     boolean d1_attemptingReboot=false;
 
-    private static final int max_SSID = 32;
-    private static final int max_PSK = 64;
-    private static final int max_DeviceName = 32;
     private static final String URL_MAIN = EXTERNALLY_STORED_1;
     private static final String default_WIFI_PSK = "";
     private static final String default_WIFI_SSID = "";
