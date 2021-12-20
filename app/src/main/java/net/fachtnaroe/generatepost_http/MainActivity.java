@@ -58,8 +58,8 @@ public class MainActivity extends Form implements HandlesEventDispatching {
     private static final int max_PSK = 64;
     private static final int max_DeviceName = 32;
     private static final String URL_MAIN = EXTERNALLY_STORED_1;
-    private static final String default_WIFI_PSK = "password";
-    private static final String default_WIFI_SSID = "someSSID";
+    private static final String default_WIFI_PSK = "";
+    private static final String default_WIFI_SSID = "";
     // providing a NAME_DEFAULT_DEVICE saves on testing/debugging time
     private static final String default_DEVICE_NAME ="TCFE-CO2-98-88";
     // UI strings for localisation
@@ -77,6 +77,7 @@ public class MainActivity extends Form implements HandlesEventDispatching {
     private static final String ui_txt_CONNECTION_SUCCESS="Successfully connected to unit";
     private static final String ui_txt_CONNECTION_FAILURE="Could not connect to Sensor Unit";
     private static final String ui_txt_CONNECT_BEFORE_REBOOT="Connect to device before attempting reboot";
+    private static final String ui_txt_REBOOT_ATTEMPT="Attempting Sensor Unit reboot";
     private static final String ui_txt_REBOOT_NOW="Sensor Unit is now rebooting";
     private static final String ui_txt_READ_SUCCESS="Successfully read from Sensor Unit";
     private static final String ui_txt_WRITE_SUCCESS="Successfully wrote to Sensor Unit";
@@ -384,7 +385,9 @@ public class MainActivity extends Form implements HandlesEventDispatching {
 
     public boolean dispatchEvent(Component component, String componentName, String eventName, Object[] params) {
         // finally, here is how the events are responded to
-        dbg("dispatchEvent: " + formName + " [" +component.toString() + "] [" + componentName + "] " + eventName);
+        if (!component.equals(animatorClock)) {
+            dbg("dispatchEvent: " + formName + " [" + component.toString() + "] [" + componentName + "] " + eventName);
+        }
         if (eventName.equals("BackPressed")) {
             // this would be a great place to do something useful
             return true;
@@ -398,6 +401,7 @@ public class MainActivity extends Form implements HandlesEventDispatching {
                 if (d1_attemptingReboot) {
                     d1_attemptingReboot=false;
                     d1_isConnected=false;
+                    d1_ModeWrite=false;
                     notifier_Messages.ShowMessageDialog(ui_txt_REBOOT_NOW,ui_txt_MESSAGE_HEADING,ui_txt_BUTTON_OK);
                     reduceTable();
                     return true;
@@ -451,7 +455,7 @@ public class MainActivity extends Form implements HandlesEventDispatching {
                 animatorClock.TimerEnabled(false);
                 animatorFrameCount++;
                 if (animatorFrameCount >= animatorFrameCountMax) {
-                    animatorFrameCount=0;
+                    animatorFrameCount=1;
                 }
                 // replace the ? in the general image name with the number of the #frame'
                 animatorImage.Picture(
@@ -508,6 +512,8 @@ public class MainActivity extends Form implements HandlesEventDispatching {
                 }
                 else {
                     d1_attemptingReboot=true;
+                    activity="";
+                    feedbackBox.Text(messages("<b>"+ui_txt_REBOOT_ATTEMPT+"</b>"));
                     connection_TestLocal.Url( config_Proto + txt_IPv4.Text() + config_Port+d1_Data.rebootstring);
                     connection_TestLocal.Get();
                     animatorClock.TimerEnabled(true);
@@ -641,13 +647,14 @@ public class MainActivity extends Form implements HandlesEventDispatching {
         lbl_PSK.Visible(false);
         txt_PSK.Visible(false);
         fiddlyTopBits.Visible(false);
-        lbl_IPv4.Visible(false);
-        txt_IPv4.Visible(false);
-
-//        txt_DeviceName.Row(0);
+//        lbl_IPv4.Visible(false);
+//        txt_IPv4.Visible(false);
+        txt_active.Text("?");
+        txt_Status.Text("0");
+        txt_Attempts.Text("0");
         btn_device_ConnectionTest.Visible(true);
+        btn_device_Configure.Text(ui_txt_READ_DEVICE);
         btn_device_Configure.Visible(false);
-
     }
 
     String messages(String addition) {
