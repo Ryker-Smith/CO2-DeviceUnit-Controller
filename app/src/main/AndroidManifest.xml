@@ -14,10 +14,14 @@
         android:theme="@style/Theme.GeneratePOST_http"
         android:usesCleartextTraffic="true">
         <activity
+            android:name=".HelpAbout"
+            android:exported="false" />
+        <activity
             android:name=".Splash"
-            android:exported="true" >
+            android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
+
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
@@ -28,8 +32,7 @@
             android:name=".SensorUnitConfiguration"
             android:exported="true"
             android:theme="@style/AppTheme.NoActionBar"
-            android:windowSoftInputMode="adjustPan">
-        </activity>
+            android:windowSoftInputMode="adjustPan"></activity>
     </application>
 
 </manifest>

@@ -23,9 +23,6 @@ public class DataDisplay extends Form implements HandlesEventDispatching {
     Label msg_AllOK;
     Button button_Settings;
 
-    static final int color_MAIN_BACKGROUND=0xFF940558; // dark red
-    static final int color_MAIN_TEXT=0xFFFFFFFF; // white
-
     arduino_eeprom_data d1_Data=new arduino_eeprom_data();
     JSONObject d1_JSON=new JSONObject();
     Clock ticker=new Clock(this);
@@ -37,7 +34,7 @@ public class DataDisplay extends Form implements HandlesEventDispatching {
          */
         /* Cur seo isteach. Is cuma cén focal atá ann, níl gá leis */
         this.Sizing("Responsive");
-        this.BackgroundColor(color_MAIN_BACKGROUND);
+        this.BackgroundColor(colors.MAIN_BACKGROUND);
         Screen1 = new VerticalScrollArrangement(this);
         // each component, listed in order
         statusBar=new StatusBarTools(Screen1);
@@ -49,11 +46,11 @@ public class DataDisplay extends Form implements HandlesEventDispatching {
         Screen1.HeightPercent(100);
         Screen1.AlignHorizontal(Component.ALIGNMENT_NORMAL);
         Screen1.AlignVertical(Component.ALIGNMENT_CENTER);
-        Screen1.BackgroundColor(color_MAIN_BACKGROUND);
+        Screen1.BackgroundColor(colors.MAIN_BACKGROUND);
 
         msg_AllOK=new Label(Screen1);
         msg_AllOK.WidthPercent(100);
-        msg_AllOK.TextColor(color_MAIN_TEXT);
+        msg_AllOK.TextColor(colors.MAIN_TEXT);
         msg_AllOK.HTMLFormat(true);
         msg_AllOK.Text("<br><br><br><br><br><br><h1 style='text-align: center;'>Howya, Mr O'Worrilt</h1>");
 

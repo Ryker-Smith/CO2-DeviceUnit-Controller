@@ -345,6 +345,7 @@ public class SensorUnitConfiguration extends Form implements HandlesEventDispatc
         EventDispatcher.registerEventForDelegation(this, formName, "TimedOut"); // for network
         EventDispatcher.registerEventForDelegation(this, formName, "Timer"); // for updates
         EventDispatcher.registerEventForDelegation(this, formName, "ErrorOccurred"); // for updates
+        EventDispatcher.registerEventForDelegation(this, formName, "BackPressed");
     }
 
     public boolean dispatchEvent(Component component, String componentName, String eventName, Object[] params) {

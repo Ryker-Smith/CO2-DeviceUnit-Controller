@@ -1,5 +1,6 @@
 package net.fachtnaroe.generatepost_http;
 
+
 import com.google.appinventor.components.runtime.Button;
 import com.google.appinventor.components.runtime.Clock;
 import com.google.appinventor.components.runtime.Component;
@@ -14,14 +15,11 @@ import com.google.appinventor.components.runtime.Web;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-public class Splash extends Form implements HandlesEventDispatching {
+public class HelpAbout extends Form implements HandlesEventDispatching {
 
     private
     VerticalArrangement Screen1;
-    StatusBarTools statusBar;
-
     Label msg_AllOK;
-    Clock ticker=new Clock(this);
 
     protected void $define() {
         /* this next allows the app to use the full screen. In fact,
@@ -33,13 +31,8 @@ public class Splash extends Form implements HandlesEventDispatching {
         this.BackgroundColor(colors.MAIN_BACKGROUND);
         Screen1 = new VerticalArrangement(this);
         // each component, listed in order
-        statusBar=new StatusBarTools(Screen1);
-        ticker = new Clock(this);
-        ticker.TimerEnabled(false);
 
         // now, how every component looks:
-        statusBar.BGTransparentColor("#00000000");
-        statusBar.BackgroundColor("#00000000");
         Screen1.WidthPercent(100);
         Screen1.HeightPercent(100);
         Screen1.Image("tie-dyed-hippy-shite.png");
@@ -50,30 +43,21 @@ public class Splash extends Form implements HandlesEventDispatching {
 
         msg_AllOK=new Label(Screen1);
         msg_AllOK.WidthPercent(100);
-//        msg_AllOK.TextColor(colors.MAIN_TEXT);
+        msg_AllOK.TextColor(colors.MAIN_TEXT);
         msg_AllOK.HTMLFormat(true);
 
-        ticker.TimerInterval(2000);
-        ticker.TimerEnabled(true);
         // now, the events the components can respond to
         EventDispatcher.registerEventForDelegation(this, formName, "Click");
         EventDispatcher.registerEventForDelegation(this, formName, "Timer"); // for updates
+        EventDispatcher.registerEventForDelegation(this, formName, "BackPressed");
     }
 
     public boolean dispatchEvent(Component component, String componentName, String eventName, Object[] params) {
         // finally, here is how the events are responded to
         dbg("dispatchEvent: " + formName + " [" +component.toString() + "] [" + componentName + "] " + eventName);
-        if (eventName.equals("Timer")) {
-            if (component.equals(ticker)) {
-                // turn off the timer while the event is being processed
-                ticker.TimerEnabled(false);
-                // process whatever the timer is for ...
-                switchForm("DataDisplay");
-                // turn the timer back on after the event is processed.
-//                ticker.TimerEnabled(true);
-                // yeah, I turned it off and then back on again. But that's important, as ticks can collide
-                return true;
-            }
+        if (eventName.equals("BackPressed")) {
+            // this would be a great place to do something useful
+            return true;
         }
         else if (eventName.equals("Click")) {
         }

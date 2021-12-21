@@ -11,4 +11,5 @@ class colors {
     static final int SUCCESS_GREEN = 0xFF569f4b;
     static final int WHITE = 0xFFFFFFFF;
     static final int BLACK = 0xFF000000;
+    static final int MAIN_TEXT=0xFFFF0000;
 }
