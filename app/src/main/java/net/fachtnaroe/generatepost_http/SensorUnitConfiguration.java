@@ -67,14 +67,7 @@ public class SensorUnitConfiguration extends Form implements HandlesEventDispatc
     dtús air. Sin uimhir ó 0-FF ar cé comh tréshoilseacht an rud.
     Cur 0x ós comhair sin chun stad-riamh-fhocail i Hexadecimal a dhénamh agus sabháil */
     /* How to use HTML for the colours */
-    private static final int color_MAIN_BACKGROUND = 0xFF477c9b;
-    private static final int color_BUTTON_BACKGROUND = 0xFF103449;
-    private static final int color_HEADING_TEXT = 0xFFe0e0ff;
-    private static final int SECTION_TOP_COLOR = 0xFF000000;
-    private static final int SECTION_BG_COLOR = 0xFF477c9b;
-    private static final int color_TEXTBOX_TEXT = 0xFF000000;
-    private static final int color_TEXTBOX_BACKGROUND = 0xFFdbdde6;
-    private static final int color_SUCCESS_GREEN = 0xFF569f4b;
+
     private static final int size_FONT_LABELS_TEXT = 18;
     private static final int size_FONT_LABELS_TEXT_SMALL = 14;
     private static final int size_FIDDLY_BAR_TOP = 50;
@@ -111,7 +104,7 @@ public class SensorUnitConfiguration extends Form implements HandlesEventDispatc
          */
         /* Cur seo isteach. Is cuma cén focal atá ann, níl gá leis */
         this.Sizing("Responsive");
-        this.BackgroundColor(color_MAIN_BACKGROUND);
+        this.BackgroundColor(colors.MAIN_BACKGROUND);
 
         Form a = this;
         Integer w = a.$form().Width();
@@ -168,7 +161,7 @@ public class SensorUnitConfiguration extends Form implements HandlesEventDispatc
         Screen1.Height(h);
         Screen1.AlignHorizontal(Component.ALIGNMENT_NORMAL);
         Screen1.AlignVertical(Component.ALIGNMENT_CENTER);
-        Screen1.BackgroundColor(color_MAIN_BACKGROUND);
+        Screen1.BackgroundColor(colors.MAIN_BACKGROUND);
         heading.Width(w);
         heading.Height(size_FIDDLY_BAR_TOP);
 
@@ -176,27 +169,27 @@ public class SensorUnitConfiguration extends Form implements HandlesEventDispatc
         heading.TextAlignment(Component.ALIGNMENT_CENTER);
         heading.FontSize(size_FONT_LABELS_TEXT + 5);
         heading.HTMLFormat(true);
-        heading.TextColor(color_HEADING_TEXT);
+        heading.TextColor(colors.HEADING_TEXT);
 
         fiddlyTopBits.Visible(false);
         fiddlyTopBits.WidthPercent(100);
         fiddlyTopBits.Height(size_FIDDLY_BAR_TOP);
         fiddlyTopBits.AlignVertical(Component.ALIGNMENT_CENTER);
-        fiddlyTopBits.BackgroundColor(color_BUTTON_BACKGROUND);
+        fiddlyTopBits.BackgroundColor(colors.BUTTON_BACKGROUND);
 
         lblActive.Text("Is\nActive ");
         lblActive.FontTypeface(font_NUMBER_DEFAULT);
         lblActive.FontSize(size_FONT_LABELS_TEXT_SMALL);
-        lblActive.TextColor(Component.COLOR_WHITE);
+        lblActive.TextColor(colors.WHITE);
         lblActive.HeightPercent(100);
-        spinnerGroup.BackgroundColor(color_TEXTBOX_BACKGROUND);
+        spinnerGroup.BackgroundColor(colors.TEXTBOX_BACKGROUND);
         spinnerGroup.Height(size_FIDDLY_BAR_TOP);
         spinnerGroup.WidthPercent(30);
         txt_active.WidthPercent(5);
         txt_active.Enabled(false);
         txt_active.Height(size_FIDDLY_BAR_TOP);
-        txt_active.BackgroundColor(color_TEXTBOX_BACKGROUND);
-        txt_active.TextColor(color_TEXTBOX_TEXT);
+        txt_active.BackgroundColor(colors.TEXTBOX_BACKGROUND);
+        txt_active.TextColor(colors.TEXTBOX_TEXT);
         txt_active.TextAlignment(Component.ALIGNMENT_CENTER);
         txt_Status.Text("?");
         txt_Status.FontSize(size_FONT_LABELS_TEXT);
@@ -207,12 +200,12 @@ public class SensorUnitConfiguration extends Form implements HandlesEventDispatc
         lblStatus.Text(ui_txt.STATUS_POSSIBLES);
         lblStatus.FontTypeface(font_NUMBER_DEFAULT);
         lblStatus.FontSize(size_FONT_LABELS_TEXT_SMALL);
-        lblStatus.TextColor(Component.COLOR_WHITE);
+        lblStatus.TextColor(colors.WHITE);
         lblStatus.Height(size_FIDDLY_BAR_TOP);
         txt_Status.WidthPercent(10);
-        txt_Status.BackgroundColor(color_TEXTBOX_BACKGROUND);
+        txt_Status.BackgroundColor(colors.TEXTBOX_BACKGROUND);
         txt_Status.Height(size_FIDDLY_BAR_TOP);
-        txt_Status.TextColor(color_TEXTBOX_TEXT);
+        txt_Status.TextColor(colors.TEXTBOX_TEXT);
         txt_Status.TextAlignment(Component.ALIGNMENT_CENTER);
         txt_Status.Text("0");
         txt_Status.NumbersOnly(true);
@@ -221,12 +214,12 @@ public class SensorUnitConfiguration extends Form implements HandlesEventDispatc
         lblAttempts.Text(ui_txt.STATUS_ATTEMPTS_COUNT);
         lblAttempts.FontTypeface(font_NUMBER_DEFAULT);
         lblAttempts.FontSize(size_FONT_LABELS_TEXT_SMALL);
-        lblAttempts.TextColor(Component.COLOR_WHITE);
+        lblAttempts.TextColor(colors.WHITE);
         lblAttempts.HeightPercent(100);
         txt_Attempts.WidthPercent(10);
-        txt_Attempts.BackgroundColor(color_TEXTBOX_BACKGROUND);
+        txt_Attempts.BackgroundColor(colors.TEXTBOX_BACKGROUND);
         txt_Attempts.Height(size_FIDDLY_BAR_TOP);
-        txt_Attempts.TextColor(color_TEXTBOX_TEXT);
+        txt_Attempts.TextColor(colors.TEXTBOX_TEXT);
         txt_Attempts.TextAlignment(Component.ALIGNMENT_CENTER);
         txt_Attempts.Text("0");
         txt_Attempts.NumbersOnly(true);
@@ -235,7 +228,7 @@ public class SensorUnitConfiguration extends Form implements HandlesEventDispatc
 
         padDivider1.Height(size_PADDING_HEIGHT);
         tableEnclosure.WidthPercent(100);
-        tableEnclosure.BackgroundColor(color_MAIN_BACKGROUND);
+        tableEnclosure.BackgroundColor(colors.MAIN_BACKGROUND);
         NetworkSetup.Rows(2);
         NetworkSetup.Columns(3);
         NetworkSetup.Width(w);
@@ -245,14 +238,14 @@ public class SensorUnitConfiguration extends Form implements HandlesEventDispatc
         lbl_DeviceName.Text(ui_txt.DEVICE_NAME);
         lbl_DeviceName.TextAlignment(Component.ALIGNMENT_OPPOSITE);
         lbl_DeviceName.FontTypeface(font_NUMBER_DEFAULT);
-        lbl_DeviceName.TextColor(Component.COLOR_WHITE);
+        lbl_DeviceName.TextColor(colors.WHITE);
         lbl_DeviceName.Visible(true);
-        lbl_DeviceName.BackgroundColor(color_MAIN_BACKGROUND);
+        lbl_DeviceName.BackgroundColor(colors.MAIN_BACKGROUND);
         txt_DeviceName.FontSize(size_FONT_LABELS_TEXT);
         txt_DeviceName.Row(0);
         txt_DeviceName.Column(2);
         txt_DeviceName.TextAlignment(Component.ALIGNMENT_NORMAL);
-        txt_DeviceName.BackgroundColor(color_TEXTBOX_BACKGROUND);
+        txt_DeviceName.BackgroundColor(colors.TEXTBOX_BACKGROUND);
         txt_DeviceName.FontTypeface(font_NUMBER_FIXED);
         txt_DeviceName.Text(default_DEVICE_NAME);
         txt_DeviceName.Visible(true);
@@ -263,14 +256,14 @@ public class SensorUnitConfiguration extends Form implements HandlesEventDispatc
         lbl_IPv4.Text(ui_txt.WIFI_IPv4);
         lbl_IPv4.TextAlignment(Component.ALIGNMENT_OPPOSITE);
         lbl_IPv4.FontTypeface(font_NUMBER_DEFAULT);
-        lbl_IPv4.TextColor(Component.COLOR_WHITE);
+        lbl_IPv4.TextColor(colors.WHITE);
         lbl_IPv4.Visible(false);
         txt_IPv4 = new TextBox(NetworkSetup);
         txt_IPv4.FontSize(size_FONT_LABELS_TEXT);
         txt_IPv4.Row(1);
         txt_IPv4.Column(2);
         txt_IPv4.TextAlignment(Component.ALIGNMENT_NORMAL);
-        txt_IPv4.BackgroundColor(color_TEXTBOX_BACKGROUND);
+        txt_IPv4.BackgroundColor(colors.TEXTBOX_BACKGROUND);
         txt_IPv4.FontTypeface(font_NUMBER_FIXED);
         txt_IPv4.Visible(false);
 
@@ -311,34 +304,34 @@ public class SensorUnitConfiguration extends Form implements HandlesEventDispatc
         feedbackBox.HTMLFormat(true);
         feedbackBox.FontSize(size_FONT_LABELS_TEXT);
         feedbackBox.FontTypeface(font_NUMBER_FIXED);
-        feedbackBox.BackgroundColor(color_TEXTBOX_BACKGROUND);
+        feedbackBox.BackgroundColor(colors.TEXTBOX_BACKGROUND);
 
         padDivider4.Height(size_PADDING_HEIGHT);
         btn_device_Find.Text(ui_txt.FIND_DEVICE);
         btn_device_Find.FontSize(size_FONT_LABELS_TEXT);
         btn_device_Find.FontTypeface(font_NUMBER_DEFAULT);
         btn_device_Find.WidthPercent(100);
-        btn_device_Find.BackgroundColor(color_BUTTON_BACKGROUND);
-        btn_device_Find.TextColor(Component.COLOR_WHITE);
+        btn_device_Find.BackgroundColor(colors.BUTTON_BACKGROUND);
+        btn_device_Find.TextColor(colors.WHITE);
         btn_device_Find.Visible(true);
         btn_device_Find.HeightPercent(8);
         btn_device_ConnectionTest.Text(ui_txt.CONNECT_DEVICE);
         btn_device_ConnectionTest.FontSize(size_FONT_LABELS_TEXT);
         btn_device_ConnectionTest.FontTypeface(font_NUMBER_DEFAULT);
         btn_device_ConnectionTest.WidthPercent(100);
-        btn_device_ConnectionTest.BackgroundColor(color_BUTTON_BACKGROUND);
-        btn_device_ConnectionTest.TextColor(Component.COLOR_WHITE);
+        btn_device_ConnectionTest.BackgroundColor(colors.BUTTON_BACKGROUND);
+        btn_device_ConnectionTest.TextColor(colors.WHITE);
         btn_device_ConnectionTest.Visible(false);
         btn_device_Configure.Text(ui_txt.READ_DEVICE);
         btn_device_Configure.FontSize(size_FONT_LABELS_TEXT);
         btn_device_Configure.FontTypeface(font_NUMBER_DEFAULT);
         btn_device_Configure.WidthPercent(100);
-        btn_device_Configure.BackgroundColor(color_BUTTON_BACKGROUND);
-        btn_device_Configure.TextColor(Component.COLOR_WHITE);
+        btn_device_Configure.BackgroundColor(colors.BUTTON_BACKGROUND);
+        btn_device_Configure.TextColor(colors.WHITE);
         btn_device_Configure.Visible(false);
 
-        notifier_Messages.BackgroundColor(Component.COLOR_WHITE);
-        notifier_Messages.TextColor(color_BUTTON_BACKGROUND);
+        notifier_Messages.BackgroundColor(colors.WHITE);
+        notifier_Messages.TextColor(colors.BUTTON_BACKGROUND);
 
         ticker.TimerInterval(60 * seconds);
         ticker.TimerEnabled(true);
@@ -570,7 +563,7 @@ public class SensorUnitConfiguration extends Form implements HandlesEventDispatc
         lbl_SSID.TextAlignment(Component.ALIGNMENT_OPPOSITE);
         lbl_SSID.FontSize(size_FONT_LABELS_TEXT);
         lbl_SSID.FontTypeface(font_NUMBER_DEFAULT);
-        lbl_SSID.TextColor(Component.COLOR_WHITE);
+        lbl_SSID.TextColor(colors.WHITE);
         txt_SSID =new TextBox(NetworkSetup);
         txt_SSID.Visible(true);
         txt_SSID.FontSize(size_FONT_LABELS_TEXT);
@@ -579,7 +572,7 @@ public class SensorUnitConfiguration extends Form implements HandlesEventDispatc
         txt_SSID.WidthPercent(60);
         txt_SSID.TextAlignment(Component.ALIGNMENT_NORMAL);
         txt_SSID.FontTypeface(font_NUMBER_FIXED);
-        txt_SSID.BackgroundColor(color_TEXTBOX_BACKGROUND);
+        txt_SSID.BackgroundColor(colors.TEXTBOX_BACKGROUND);
         txt_SSID.Text(default_WIFI_SSID);
 
         lbl_PSK = new Label (NetworkSetup);
@@ -590,13 +583,13 @@ public class SensorUnitConfiguration extends Form implements HandlesEventDispatc
         lbl_PSK.Text(ui_txt.WIFI_PSK);
         lbl_PSK.FontTypeface(font_NUMBER_DEFAULT);
         lbl_PSK.Visible(true);
-        lbl_PSK.TextColor(Component.COLOR_WHITE);
+        lbl_PSK.TextColor(colors.WHITE);
         txt_PSK =new PasswordTextBox(NetworkSetup);
         txt_PSK.FontSize(size_FONT_LABELS_TEXT);
         txt_PSK.Row(3);
         txt_PSK.Column(2);
         txt_PSK.TextAlignment(Component.ALIGNMENT_NORMAL);
-        txt_PSK.BackgroundColor(color_TEXTBOX_BACKGROUND);
+        txt_PSK.BackgroundColor(colors.TEXTBOX_BACKGROUND);
         txt_PSK.FontTypeface(font_NUMBER_FIXED);
         txt_PSK.Text(default_WIFI_PSK);
         txt_PSK.Visible(true);
@@ -671,7 +664,7 @@ public class SensorUnitConfiguration extends Form implements HandlesEventDispatc
                                 activity = "";
                                 feedbackBox.HeightPercent(30);
                                 feedbackBox.Text(messages("<b>" + ui_txt.CONNECTION_SUCCESS + ".</b>"));
-                                txt_IPv4.TextColor(color_SUCCESS_GREEN);
+                                txt_IPv4.TextColor(colors.SUCCESS_GREEN);
                                 txt_IPv4.FontBold(true);
                                 enlargeTable();
                                 d1_isConnected=true;
@@ -692,8 +685,8 @@ public class SensorUnitConfiguration extends Form implements HandlesEventDispatc
                                 dbg(ui_txt.READ_SUCCESS);
                                 activity = "";
                                 feedbackBox.Text(messages("<b>" + ui_txt.READ_SUCCESS + ".</b>"));
-                                txt_IPv4.TextColor(Component.COLOR_BLACK);
-                                txt_DeviceName.TextColor(color_SUCCESS_GREEN);
+                                txt_IPv4.TextColor(colors.BLACK);
+                                txt_DeviceName.TextColor(colors.SUCCESS_GREEN);
                                 txt_IPv4.FontBold(false);
                                 txt_DeviceName.FontBold(true);
                                 txt_SSID.Text(parser.getString("config_SSID"));
