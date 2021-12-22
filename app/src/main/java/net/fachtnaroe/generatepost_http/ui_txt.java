@@ -32,4 +32,7 @@ class ui_txt {
     static final String WIFI_SSID = "SSID";
     static final String WIFI_IPv4 = "IPv4";
     static final String URL_TIMED_OUT = "Timed-out connecting to ";
+    static final String NO_SHOW_AGAIN = "Don't show again";
+    static final String DISCLAIMER="This App is not offered with a medical or any other guarantee.<br><br>Use this at your own risk, and always use your own best judgement as to what is safe.";
+    static final String HINT_DEVICE_NAME="Name of the CO2 unit";
 }

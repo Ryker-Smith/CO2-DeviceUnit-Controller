@@ -14,6 +14,7 @@ public class ProgramSettings {
     public String DEVICE_NAME="";
     public String localIPv4="";
     public Boolean showStartingMessage=true;
+    public Integer startingMessageCountdown=5;
     TinyDB localDB;
     // not saved into local DB:
     public String WIFI_PSK = "";
@@ -21,6 +22,8 @@ public class ProgramSettings {
     // these strings are defined as constants, to avoid them being provided twice as literals in get/set
     private static final String str_DEVICE_NAME="DEVICE_NAME";
     private static final String str_localIPv4="localIPv4";
+    private static final String str_showStartingMessage="showStartingMessage";
+    private static final String str_startingMessageCountdown="WhatALongWindedWayOfDoingThis";
     // providing a NAME_DEFAULT_DEVICE saves on testing/debugging time
 //    public static final String default_DEVICE_NAME ="TCFE-CO2-98-88";
 
@@ -32,6 +35,8 @@ public class ProgramSettings {
         try {
             DEVICE_NAME = (String) localDB.GetValue(str_DEVICE_NAME, DEVICE_NAME);
             localIPv4 = (String) localDB.GetValue(str_localIPv4, localIPv4);
+            showStartingMessage=(boolean) localDB.GetValue(str_showStartingMessage,showStartingMessage);
+            startingMessageCountdown=(Integer) localDB.GetValue(str_startingMessageCountdown,startingMessageCountdown);
             return true;
         }
         catch (Exception e) {
@@ -43,6 +48,8 @@ public class ProgramSettings {
         try {
             localDB.StoreValue(str_DEVICE_NAME, DEVICE_NAME);
             localDB.StoreValue(str_localIPv4, localIPv4);
+            localDB.StoreValue(str_showStartingMessage, showStartingMessage);
+            localDB.StoreValue(str_startingMessageCountdown,startingMessageCountdown);
             return true;
         }
         catch (Exception e) {

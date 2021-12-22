@@ -6,10 +6,13 @@ import com.google.appinventor.components.runtime.Component;
 import com.google.appinventor.components.runtime.EventDispatcher;
 import com.google.appinventor.components.runtime.Form;
 import com.google.appinventor.components.runtime.HandlesEventDispatching;
+import com.google.appinventor.components.runtime.HorizontalArrangement;
+import com.google.appinventor.components.runtime.Image;
 import com.google.appinventor.components.runtime.Label;
 import com.google.appinventor.components.runtime.Notifier;
 import com.google.appinventor.components.runtime.VerticalScrollArrangement;
 import com.google.appinventor.components.runtime.Web;
+import com.google.appinventor.components.runtime.WebViewer;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -17,18 +20,18 @@ import org.json.JSONObject;
 public class DataDisplay extends Form implements HandlesEventDispatching {
 
     private
-    static final Integer value_TICKER_INTERVAL=2000;
-    VerticalScrollArrangement Screen1;
+    static final Integer value_TICKER_INTERVAL=60000;
+    VerticalScrollArrangement screen_DataDisplay;
     StatusBarTools statusBar;
     Web connection_toSomewhere;
     Button btn_doesSomething;
     Label msg_AllOK;
-    Button button_Settings;
     arduino_eeprom_data d1_Data=new arduino_eeprom_data();
     JSONObject d1_JSON=new JSONObject();
     Clock ticker=new Clock(this);
     Notifier notifier_Messages;
-
+    Button btn_Configuration;
+    WebViewer webview_DataDisplay;
     ProgramSettings settings;
 
     protected void $define() {
@@ -46,24 +49,41 @@ public class DataDisplay extends Form implements HandlesEventDispatching {
             notifier_Messages.ShowMessageDialog(ui_txt.CONFIGURATION_REQUIRED,ui_txt.MESSAGE_HEADING,ui_txt.BUTTON_OK);
             switchFormWithStartValue("SensorUnitConfiguration",null);
         }
-        // each component, listed in order
-        Screen1 = new VerticalScrollArrangement(this);
-        statusBar=new StatusBarTools(Screen1);
 
+        // each component, listed in order
+        screen_DataDisplay = new VerticalScrollArrangement(this);
+        statusBar=new StatusBarTools(screen_DataDisplay);
+        HorizontalArrangement top = new HorizontalArrangement(screen_DataDisplay);
+        btn_Configuration =new Button(top);
+        Label pad1=new Label(top);
+        HorizontalArrangement pad2=new HorizontalArrangement(screen_DataDisplay);
+        webview_DataDisplay = new WebViewer(screen_DataDisplay);
+        connection_toSomewhere=new Web(screen_DataDisplay);
         // now, how every component looks:
         statusBar.BackgroundColor(colors.withoutTransparencyValue(colors.MAIN_BACKGROUND));
-        Screen1.WidthPercent(100);
-        Screen1.HeightPercent(100);
-        Screen1.AlignHorizontal(Component.ALIGNMENT_NORMAL);
-        Screen1.AlignVertical(Component.ALIGNMENT_CENTER);
-        Screen1.BackgroundColor(colors.MAIN_BACKGROUND);
+        screen_DataDisplay.WidthPercent(100);
+        screen_DataDisplay.HeightPercent(100);
+        screen_DataDisplay.AlignHorizontal(Component.ALIGNMENT_NORMAL);
+        screen_DataDisplay.AlignVertical(Component.ALIGNMENT_CENTER);
+        screen_DataDisplay.BackgroundColor(colors.MAIN_BACKGROUND);
+        top.WidthPercent(100);
+        top.Height(32);
+        top.AlignHorizontal(Component.ALIGNMENT_OPPOSITE);
+        btn_Configuration.Image("image_Cogs.png");
+        btn_Configuration.Width(32);
+        btn_Configuration.Width(32);
+        pad1.Width(32);
+        pad2.Height(32);
+        webview_DataDisplay.WidthPercent(100);
+        webview_DataDisplay.HeightPercent(80);
+        webview_DataDisplay.GoToUrl("file:///android_asset/empty.html");
 
-        connection_toSomewhere=new Web(Screen1);
-        msg_AllOK=new Label(Screen1);
+                //GoToUrl(getAssets().open("empty.html"));
+        msg_AllOK=new Label(screen_DataDisplay);
         msg_AllOK.WidthPercent(100);
         msg_AllOK.TextColor(colors.MAIN_TEXT);
         msg_AllOK.HTMLFormat(true);
-        msg_AllOK.Text("<br><br><br><br><br><br><h1 style='text-align: center;'>CO<sub>2</sub></h1>");
+        msg_AllOK.Text("<h1 style='text-align: center;'>CO<sub>2</sub></h1>");
 
         // now, the events the components can respond to
         EventDispatcher.registerEventForDelegation(this, formName, "Click");
@@ -76,6 +96,7 @@ public class DataDisplay extends Form implements HandlesEventDispatching {
         ticker.TimerEnabled(true);
     }
 
+    @Override
     public boolean dispatchEvent(Component component, String componentName, String eventName, Object[] params) {
         // finally, here is how the events are responded to
         dbg("dispatchEvent: " + formName + " [" +component.toString() + "] [" + componentName + "] " + eventName);
@@ -84,9 +105,11 @@ public class DataDisplay extends Form implements HandlesEventDispatching {
             settings.get();
             return true;
         }
+
         else if (eventName.equals("BackPressed")) {
             // this would be a great place to do something useful, if not
-            // then we've captured the BackPress operation to ignore it
+            // then we've captured the BackPress operation(?) to ignore it
+
             return true;
         }
         else if (eventName.equals("Timer")) {
@@ -113,12 +136,10 @@ public class DataDisplay extends Form implements HandlesEventDispatching {
         }
         else if (eventName.equals("Click")) {
             if (component.equals(btn_doesSomething)) {
-
                 return true;
             }
-            else if (component.equals(button_Settings)) {
+            else if (component.equals(btn_Configuration)) {
                 switchFormWithStartValue("SensorUnitConfiguration",null);
-                this.recreate();
                 return true;
             }
         }

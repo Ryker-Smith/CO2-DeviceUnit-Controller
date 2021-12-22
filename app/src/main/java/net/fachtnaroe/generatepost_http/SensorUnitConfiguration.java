@@ -22,16 +22,11 @@ import com.google.appinventor.components.runtime.Web;
 
 import org.json.JSONException;
 import org.json.JSONObject;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-
-import static net.fachtnaroe.generatepost_http.GeneralApplicationSettings.EXTERNALLY_STORED_1;
 
 public class SensorUnitConfiguration extends Form implements HandlesEventDispatching {
 
     private
-    VerticalScrollArrangement Screen1;
+    VerticalScrollArrangement screen_SensorUnitConfiguration;
     StatusBarTools statusBar;
     HorizontalArrangement fiddlyTopBits, horz_ActivityOrRestart;
     TextBox txt_SSID, txt_DeviceName, txt_IPv4, txt_active;
@@ -113,11 +108,11 @@ public class SensorUnitConfiguration extends Form implements HandlesEventDispatc
         Label spaceAtTheTop=new Label((this));
         spaceAtTheTop.Height(20);
         Label heading = new Label(this);
-        Screen1 = new VerticalScrollArrangement(this);
+        screen_SensorUnitConfiguration = new VerticalScrollArrangement(this);
         // each component, listed in order
-        statusBar=new StatusBarTools(Screen1);
+        statusBar=new StatusBarTools(screen_SensorUnitConfiguration);
 //====================================================================================================
-        fiddlyTopBits = new HorizontalArrangement(Screen1);
+        fiddlyTopBits = new HorizontalArrangement(screen_SensorUnitConfiguration);
         Label lblActive = new Label(fiddlyTopBits);
         HorizontalArrangement spinnerGroup=new HorizontalArrangement(fiddlyTopBits);
         txt_active=new TextBox(spinnerGroup);
@@ -126,15 +121,15 @@ public class SensorUnitConfiguration extends Form implements HandlesEventDispatc
         txt_Status = new TextBox(fiddlyTopBits);
         Label lblAttempts = new Label(fiddlyTopBits);
         txt_Attempts = new TextBox(fiddlyTopBits);
-        Label padDivider1 = new Label(Screen1);
-        HorizontalArrangement tableEnclosure=new HorizontalArrangement(Screen1);
+        Label padDivider1 = new Label(screen_SensorUnitConfiguration);
+        HorizontalArrangement tableEnclosure=new HorizontalArrangement(screen_SensorUnitConfiguration);
         NetworkSetup = new TableArrangement(tableEnclosure);
         lbl_DeviceName = new Label(NetworkSetup);
         txt_DeviceName = new TextBox(NetworkSetup);
         lbl_IPv4 = new Label(NetworkSetup);
         Label padMiddle = new Label(NetworkSetup);
 
-        horz_ActivityOrRestart=new HorizontalArrangement(Screen1);
+        horz_ActivityOrRestart=new HorizontalArrangement(screen_SensorUnitConfiguration);
         HorizontalArrangement horz1=new HorizontalArrangement(horz_ActivityOrRestart);
         HorizontalArrangement horz2=new HorizontalArrangement(horz_ActivityOrRestart);
         HorizontalArrangement horz3=new HorizontalArrangement(horz_ActivityOrRestart);
@@ -144,25 +139,25 @@ public class SensorUnitConfiguration extends Form implements HandlesEventDispatc
         animatorImage = new Image(horz3);
         btn_Restart=new Button(horz4);
 
-        Label padDivider4 = new Label(Screen1);
-        feedbackBox = new Label(Screen1);
-        btn_device_Find = new Button(Screen1);
-        btn_device_ConnectionTest = new Button(Screen1);
-        btn_device_Configure = new Button(Screen1);
-        connection_SensorUnit = new Web(Screen1);
-        connection_RelayServer = new Web(Screen1);
-        connection_TestLocal = new Web(Screen1);
-        notifier_Messages = new Notifier(Screen1);
+        Label padDivider4 = new Label(screen_SensorUnitConfiguration);
+        feedbackBox = new Label(screen_SensorUnitConfiguration);
+        btn_device_Find = new Button(screen_SensorUnitConfiguration);
+        btn_device_ConnectionTest = new Button(screen_SensorUnitConfiguration);
+        btn_device_Configure = new Button(screen_SensorUnitConfiguration);
+        connection_SensorUnit = new Web(screen_SensorUnitConfiguration);
+        connection_RelayServer = new Web(screen_SensorUnitConfiguration);
+        connection_TestLocal = new Web(screen_SensorUnitConfiguration);
+        notifier_Messages = new Notifier(screen_SensorUnitConfiguration);
 //====================================================================================================
         // still not sure how this works
         statusBar.BGTransparentColor("#00000000");
         statusBar.BackgroundColor("#00000000");
         // now, how every component looks:
-        Screen1.Width(w);
-        Screen1.Height(h);
-        Screen1.AlignHorizontal(Component.ALIGNMENT_NORMAL);
-        Screen1.AlignVertical(Component.ALIGNMENT_CENTER);
-        Screen1.BackgroundColor(colors.MAIN_BACKGROUND);
+        screen_SensorUnitConfiguration.Width(w);
+        screen_SensorUnitConfiguration.Height(h);
+        screen_SensorUnitConfiguration.AlignHorizontal(Component.ALIGNMENT_NORMAL);
+        screen_SensorUnitConfiguration.AlignVertical(Component.ALIGNMENT_CENTER);
+        screen_SensorUnitConfiguration.BackgroundColor(colors.MAIN_BACKGROUND);
         heading.Width(w);
         heading.Height(size_FIDDLY_BAR_TOP);
 
@@ -251,6 +246,7 @@ public class SensorUnitConfiguration extends Form implements HandlesEventDispatc
         txt_DeviceName.Text(settings.DEVICE_NAME);
         txt_DeviceName.Visible(true);
         txt_DeviceName.WidthPercent(100);
+        txt_DeviceName.Hint(ui_txt.HINT_DEVICE_NAME);
         lbl_IPv4.Row(1);
         lbl_IPv4.Column(0);
         lbl_IPv4.FontSize(size_FONT_LABELS_TEXT);
@@ -353,10 +349,6 @@ public class SensorUnitConfiguration extends Form implements HandlesEventDispatc
         // finally, here is how the events are responded to
         if (!component.equals(animatorClock)) {
             dbg("dispatchEvent: " + formName + " [" + component.toString() + "] [" + componentName + "] " + eventName);
-        }
-        if (eventName.equals("BackPressed")) {
-            // this would be a great place to do something useful
-            return true;
         }
         else if (eventName.equals("ErrorOccurred")) {
             Integer tmp_error=Integer.valueOf((Integer)params[2]);
@@ -660,6 +652,9 @@ public class SensorUnitConfiguration extends Form implements HandlesEventDispatc
                                 feedbackBox.Text(messages("<b>" + ui_txt.CONNECTION_SUCCESS + ".</b>"));
                                 txt_IPv4.TextColor(colors.SUCCESS_GREEN);
                                 txt_IPv4.FontBold(true);
+                                settings.DEVICE_NAME=txt_DeviceName.Text();
+                                settings.localIPv4=txt_IPv4.Text();
+                                settings.set();
                                 enlargeTable();
                                 d1_isConnected=true;
                                 btn_device_Configure.Visible(true);
