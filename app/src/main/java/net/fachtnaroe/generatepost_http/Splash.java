@@ -22,6 +22,7 @@ public class Splash extends Form implements HandlesEventDispatching {
 
     Label msg_AllOK;
     Clock ticker=new Clock(this);
+    ProgramSettings settings;
 
     protected void $define() {
         /* this next allows the app to use the full screen. In fact,
@@ -31,6 +32,7 @@ public class Splash extends Form implements HandlesEventDispatching {
         /* Cur seo isteach. Is cuma cén focal atá ann, níl gá leis */
         this.Sizing("Responsive");
         this.BackgroundColor(colors.MAIN_BACKGROUND);
+        settings = new ProgramSettings(this);
         Screen1 = new VerticalArrangement(this);
         // each component, listed in order
         statusBar=new StatusBarTools(Screen1);
@@ -68,6 +70,14 @@ public class Splash extends Form implements HandlesEventDispatching {
                 // turn off the timer while the event is being processed
                 ticker.TimerEnabled(false);
                 // process whatever the timer is for ...
+                if (settings.get()) {
+                    if (settings.showStartingMessage) {
+
+                    }
+                    else {
+                        switchForm("DataDisplay");
+                    }
+                }
                 switchForm("DataDisplay");
                 // turn the timer back on after the event is processed.
 //                ticker.TimerEnabled(true);
@@ -76,6 +86,7 @@ public class Splash extends Form implements HandlesEventDispatching {
             }
         }
         else if (eventName.equals("Click")) {
+
         }
         return false;
     }

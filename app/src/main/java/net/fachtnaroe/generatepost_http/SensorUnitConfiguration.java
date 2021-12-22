@@ -37,7 +37,7 @@ public class SensorUnitConfiguration extends Form implements HandlesEventDispatc
     TextBox txt_SSID, txt_DeviceName, txt_IPv4, txt_active;
     PasswordTextBox txt_PSK;
     Label lbl_SSID, lbl_PSK, lbl_DeviceName, lbl_IPv4;
-    Button btn_device_Configure, btn_device_Find, btn_device_ConnectionTest, testLocalDeviceButton, btn_Home, btn_Restart;
+    Button btn_device_Configure, btn_device_Find, btn_device_ConnectionTest, btn_Home, btn_Restart;
     Web connection_SensorUnit, connection_RelayServer, connection_TestLocal;
     Label feedbackBox;
     Notifier notifier_Messages;
@@ -56,11 +56,7 @@ public class SensorUnitConfiguration extends Form implements HandlesEventDispatc
     boolean d1_isConnected=false;
     boolean d1_attemptingReboot=false;
 
-    private static final String URL_MAIN = EXTERNALLY_STORED_1;
-    private static final String default_WIFI_PSK = "";
-    private static final String default_WIFI_SSID = "";
-    // providing a NAME_DEFAULT_DEVICE saves on testing/debugging time
-    private static final String default_DEVICE_NAME ="TCFE-CO2-98-88";
+
     // UI strings for localisation
 
     /* Tá ná dáthanna déanta mar an gcéanna le HTML, ach le FF ar
@@ -96,6 +92,7 @@ public class SensorUnitConfiguration extends Form implements HandlesEventDispatc
     String animatorImageName="button_image_network_activity_?.png";
     int animatorClock_Interval=50;
     int buttonsAndAnimatorSize=48;
+    ProgramSettings settings;
 
     protected void $define() {
         /* this next allows the app to use the full screen. In fact,
@@ -105,7 +102,11 @@ public class SensorUnitConfiguration extends Form implements HandlesEventDispatc
         /* Cur seo isteach. Is cuma cén focal atá ann, níl gá leis */
         this.Sizing("Responsive");
         this.BackgroundColor(colors.MAIN_BACKGROUND);
-
+        settings = new ProgramSettings(this);
+        if (!settings.get()) {
+            // if there are no settings, write blanks
+            settings.set();
+        }
         Form a = this;
         Integer w = a.$form().Width();
         Integer h = a.$form().Height();
@@ -247,7 +248,7 @@ public class SensorUnitConfiguration extends Form implements HandlesEventDispatc
         txt_DeviceName.TextAlignment(Component.ALIGNMENT_NORMAL);
         txt_DeviceName.BackgroundColor(colors.TEXTBOX_BACKGROUND);
         txt_DeviceName.FontTypeface(font_NUMBER_FIXED);
-        txt_DeviceName.Text(default_DEVICE_NAME);
+        txt_DeviceName.Text(settings.DEVICE_NAME);
         txt_DeviceName.Visible(true);
         txt_DeviceName.WidthPercent(100);
         lbl_IPv4.Row(1);
@@ -500,10 +501,10 @@ public class SensorUnitConfiguration extends Form implements HandlesEventDispatc
                 animatorClock.TimerEnabled(true);
                 activity = "";
                 if (!txt_DeviceName.Text().equals("")) {
-                    connection_RelayServer.Url(makeGetString_IPv4());
+                    connection_RelayServer.Url(settings.makeGetString("IPv4"));
                     lbl_IPv4.Visible(true);
                     txt_IPv4.Visible(true);
-                    feedbackBox.Text(messages("<b>"+ui_txt.CONNECTION_SENDING+"</b> " + makeGetString_IPv4()));
+                    feedbackBox.Text(messages("<b>"+ui_txt.CONNECTION_SENDING+"</b> " + settings.makeGetString("IPv4")));
                     connection_RelayServer.Get();
                 }
                 return true;
@@ -529,14 +530,6 @@ public class SensorUnitConfiguration extends Form implements HandlesEventDispatc
             }
         }
         return false;
-    }
-
-    String makeGetString_IPv4(){
-        String test1 = URL_MAIN+"?device=";
-               test1+= txt_DeviceName.Text();
-               test1+="&";
-               test1+="sensor=IPv4";
-        return test1;
     }
 
     boolean config2JSON() {
@@ -574,7 +567,7 @@ public class SensorUnitConfiguration extends Form implements HandlesEventDispatc
         txt_SSID.TextAlignment(Component.ALIGNMENT_NORMAL);
         txt_SSID.FontTypeface(font_NUMBER_FIXED);
         txt_SSID.BackgroundColor(colors.TEXTBOX_BACKGROUND);
-        txt_SSID.Text(default_WIFI_SSID);
+        txt_SSID.Text(settings.WIFI_SSID);
 
         lbl_PSK = new Label (NetworkSetup);
         lbl_PSK.Row(3);
@@ -592,7 +585,7 @@ public class SensorUnitConfiguration extends Form implements HandlesEventDispatc
         txt_PSK.TextAlignment(Component.ALIGNMENT_NORMAL);
         txt_PSK.BackgroundColor(colors.TEXTBOX_BACKGROUND);
         txt_PSK.FontTypeface(font_NUMBER_FIXED);
-        txt_PSK.Text(default_WIFI_PSK);
+        txt_PSK.Text(settings.WIFI_PSK);
         txt_PSK.Visible(true);
         fiddlyTopBits.Visible(true);
     }

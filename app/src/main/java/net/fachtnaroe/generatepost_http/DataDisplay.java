@@ -7,6 +7,7 @@ import com.google.appinventor.components.runtime.EventDispatcher;
 import com.google.appinventor.components.runtime.Form;
 import com.google.appinventor.components.runtime.HandlesEventDispatching;
 import com.google.appinventor.components.runtime.Label;
+import com.google.appinventor.components.runtime.Notifier;
 import com.google.appinventor.components.runtime.VerticalScrollArrangement;
 import com.google.appinventor.components.runtime.Web;
 
@@ -16,6 +17,7 @@ import org.json.JSONObject;
 public class DataDisplay extends Form implements HandlesEventDispatching {
 
     private
+    static final Integer value_TICKER_INTERVAL=2000;
     VerticalScrollArrangement Screen1;
     StatusBarTools statusBar;
     Web connection_toSomewhere;
@@ -25,6 +27,7 @@ public class DataDisplay extends Form implements HandlesEventDispatching {
     arduino_eeprom_data d1_Data=new arduino_eeprom_data();
     JSONObject d1_JSON=new JSONObject();
     Clock ticker=new Clock(this);
+    Notifier notifier_Messages;
 
     ProgramSettings settings;
 
@@ -37,8 +40,12 @@ public class DataDisplay extends Form implements HandlesEventDispatching {
         this.Sizing("Responsive");
         this.BackgroundColor(colors.MAIN_BACKGROUND);
         settings = new ProgramSettings(this);
-        settings.get();
-
+        if (!settings.get()) {
+            // if there are no settings, write blanks
+            settings.set();
+            notifier_Messages.ShowMessageDialog(ui_txt.CONFIGURATION_REQUIRED,ui_txt.MESSAGE_HEADING,ui_txt.BUTTON_OK);
+            switchFormWithStartValue("SensorUnitConfiguration",null);
+        }
         // each component, listed in order
         Screen1 = new VerticalScrollArrangement(this);
         statusBar=new StatusBarTools(Screen1);
@@ -51,6 +58,7 @@ public class DataDisplay extends Form implements HandlesEventDispatching {
         Screen1.AlignVertical(Component.ALIGNMENT_CENTER);
         Screen1.BackgroundColor(colors.MAIN_BACKGROUND);
 
+        connection_toSomewhere=new Web(Screen1);
         msg_AllOK=new Label(Screen1);
         msg_AllOK.WidthPercent(100);
         msg_AllOK.TextColor(colors.MAIN_TEXT);
@@ -63,26 +71,31 @@ public class DataDisplay extends Form implements HandlesEventDispatching {
         EventDispatcher.registerEventForDelegation(this, formName, "AfterSelecting");
         EventDispatcher.registerEventForDelegation(this, formName, "TimedOut"); // for network
         EventDispatcher.registerEventForDelegation(this, formName, "Timer"); // for updates
+        EventDispatcher.registerEventForDelegation(this, formName, "OtherScreenClosed"); // for updates
+        ticker.TimerInterval(value_TICKER_INTERVAL);
+        ticker.TimerEnabled(true);
     }
 
     public boolean dispatchEvent(Component component, String componentName, String eventName, Object[] params) {
         // finally, here is how the events are responded to
         dbg("dispatchEvent: " + formName + " [" +component.toString() + "] [" + componentName + "] " + eventName);
-        if (eventName.equals("BackPressed")) {
-            // this would be a great place to do something useful
+        if (eventName.equals("OtherScreenClosed")) {
+            // when the settings screen closes, re-read the settings db
+            settings.get();
             return true;
         }
-        else if (eventName.equals("AfterSelecting")) {
+        else if (eventName.equals("BackPressed")) {
+            // this would be a great place to do something useful, if not
+            // then we've captured the BackPress operation to ignore it
+            return true;
         }
         else if (eventName.equals("Timer")) {
             if (component.equals(ticker)) {
                 // turn off the timer while the event is being processed
                 ticker.TimerEnabled(false);
-                // process whatever the timer is for ...
-                dbg("ticker has ticked");
+                connection_toSomewhere.Url(settings.URL_MAIN+settings.makeGetString("CO2"));
                 // turn the timer back on after the event is processed.
                 ticker.TimerEnabled(true);
-                // yeah, I turned it off and then back on again. But that's important, as ticks can collide
                 return true;
             }
         }

@@ -16,6 +16,7 @@ class ui_txt {
     static final String CONNECTION_SUCCESS = "Successfully connected to unit";
     static final String CONNECTION_FAILURE = "Could not connect to Sensor Unit";
     static final String CONNECT_BEFORE_REBOOT = "Connect to device before attempting reboot";
+    static final String CONFIGURATION_REQUIRED="Configuration of the SensorUnit is required";
     static final String REBOOT_ATTEMPT = "Attempting Sensor Unit reboot";
     static final String REBOOT_NOW = "Sensor Unit is now rebooting";
     static final String READ_SUCCESS = "Successfully read from Sensor Unit";
