@@ -22,10 +22,11 @@ public class DataDisplay extends Form implements HandlesEventDispatching {
     Button btn_doesSomething;
     Label msg_AllOK;
     Button button_Settings;
-
     arduino_eeprom_data d1_Data=new arduino_eeprom_data();
     JSONObject d1_JSON=new JSONObject();
     Clock ticker=new Clock(this);
+
+    ProgramSettings settings;
 
     protected void $define() {
         /* this next allows the app to use the full screen. In fact,
@@ -35,13 +36,15 @@ public class DataDisplay extends Form implements HandlesEventDispatching {
         /* Cur seo isteach. Is cuma cén focal atá ann, níl gá leis */
         this.Sizing("Responsive");
         this.BackgroundColor(colors.MAIN_BACKGROUND);
-        Screen1 = new VerticalScrollArrangement(this);
+        settings = new ProgramSettings(this);
+        settings.get();
+
         // each component, listed in order
+        Screen1 = new VerticalScrollArrangement(this);
         statusBar=new StatusBarTools(Screen1);
 
-        statusBar.BGTransparentColor("#00000000");
-        statusBar.BackgroundColor("#00000000");
         // now, how every component looks:
+        statusBar.BackgroundColor(colors.withoutTransparencyValue(colors.MAIN_BACKGROUND));
         Screen1.WidthPercent(100);
         Screen1.HeightPercent(100);
         Screen1.AlignHorizontal(Component.ALIGNMENT_NORMAL);
@@ -52,7 +55,7 @@ public class DataDisplay extends Form implements HandlesEventDispatching {
         msg_AllOK.WidthPercent(100);
         msg_AllOK.TextColor(colors.MAIN_TEXT);
         msg_AllOK.HTMLFormat(true);
-        msg_AllOK.Text("<br><br><br><br><br><br><h1 style='text-align: center;'>Howya, Mr O'Worrilt</h1>");
+        msg_AllOK.Text("<br><br><br><br><br><br><h1 style='text-align: center;'>CO<sub>2</sub></h1>");
 
         // now, the events the components can respond to
         EventDispatcher.registerEventForDelegation(this, formName, "Click");
@@ -127,7 +130,7 @@ public class DataDisplay extends Form implements HandlesEventDispatching {
     }
 
     public static void dbg (String debugMsg) {
-        System.err.print( "~~~> " + debugMsg + " <~~~\n");
+        System.err.println( "~~~> " + debugMsg + " <~~~\n");
     }
     public static boolean isNumeric(String string) {
         int intValue;

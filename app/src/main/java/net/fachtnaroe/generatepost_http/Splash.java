@@ -53,7 +53,7 @@ public class Splash extends Form implements HandlesEventDispatching {
 //        msg_AllOK.TextColor(colors.MAIN_TEXT);
         msg_AllOK.HTMLFormat(true);
 
-        ticker.TimerInterval(2000);
+        ticker.TimerInterval(1000);
         ticker.TimerEnabled(true);
         // now, the events the components can respond to
         EventDispatcher.registerEventForDelegation(this, formName, "Click");

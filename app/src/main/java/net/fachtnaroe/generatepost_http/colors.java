@@ -1,5 +1,9 @@
 package net.fachtnaroe.generatepost_http;
 
+import java.util.Scanner;
+
+import static net.fachtnaroe.generatepost_http.HelpAbout.dbg;
+
 class colors {
     static final int MAIN_BACKGROUND = 0xFF477c9b;
     static final int BUTTON_BACKGROUND = 0xFF103449;
@@ -11,5 +15,12 @@ class colors {
     static final int SUCCESS_GREEN = 0xFF569f4b;
     static final int WHITE = 0xFFFFFFFF;
     static final int BLACK = 0xFF000000;
-    static final int MAIN_TEXT=0xFFFF0000;
+    static final int MAIN_TEXT=0xFFbcdeFF;
+
+    static String withoutTransparencyValue (Integer x) {
+        String s=x.toHexString(x);
+        s=s.substring(2);
+        s="#"+s;
+        return s;
+    }
 }
