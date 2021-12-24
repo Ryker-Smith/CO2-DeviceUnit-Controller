@@ -102,9 +102,9 @@ public class SensorUnitConfiguration extends Form implements HandlesEventDispatc
             // if there are no settings, write blanks
             settings.set();
         }
-        Form a = this;
-        Integer w = a.$form().Width();
-        Integer h = a.$form().Height();
+//        Form a = this;
+//        Integer w = a.$form().Width();
+//        Integer h = a.$form().Height();
         Label spaceAtTheTop=new Label((this));
         spaceAtTheTop.Height(20);
         Label heading = new Label(this);
@@ -153,12 +153,12 @@ public class SensorUnitConfiguration extends Form implements HandlesEventDispatc
         statusBar.BGTransparentColor("#00000000");
         statusBar.BackgroundColor("#00000000");
         // now, how every component looks:
-        screen_SensorUnitConfiguration.Width(w);
-        screen_SensorUnitConfiguration.Height(h);
+        screen_SensorUnitConfiguration.WidthPercent(100);
+        screen_SensorUnitConfiguration.HeightPercent(100);
         screen_SensorUnitConfiguration.AlignHorizontal(Component.ALIGNMENT_NORMAL);
         screen_SensorUnitConfiguration.AlignVertical(Component.ALIGNMENT_CENTER);
         screen_SensorUnitConfiguration.BackgroundColor(colors.MAIN_BACKGROUND);
-        heading.Width(w);
+        heading.WidthPercent(100);
         heading.Height(size_FIDDLY_BAR_TOP);
 
         heading.Text("\n<h3><b>" + ui_txt.MAIN_HEAD + "</b></h3>");
@@ -227,7 +227,7 @@ public class SensorUnitConfiguration extends Form implements HandlesEventDispatc
         tableEnclosure.BackgroundColor(colors.MAIN_BACKGROUND);
         NetworkSetup.Rows(2);
         NetworkSetup.Columns(3);
-        NetworkSetup.Width(w);
+        NetworkSetup.WidthPercent(100);
         lbl_DeviceName.Row(0);
         lbl_DeviceName.Column(0);
         lbl_DeviceName.FontSize(size_FONT_LABELS_TEXT);
@@ -296,7 +296,7 @@ public class SensorUnitConfiguration extends Form implements HandlesEventDispatc
         btn_Restart.Height(buttonsAndAnimatorSize);
         btn_Restart.TextAlignment(Component.ALIGNMENT_CENTER);
 
-        feedbackBox.Width(w);
+        feedbackBox.WidthPercent(100);
         feedbackBox.HeightPercent(30);
         feedbackBox.HTMLFormat(true);
         feedbackBox.FontSize(size_FONT_LABELS_TEXT);
@@ -350,7 +350,7 @@ public class SensorUnitConfiguration extends Form implements HandlesEventDispatc
         if (!component.equals(animatorClock)) {
             dbg("dispatchEvent: " + formName + " [" + component.toString() + "] [" + componentName + "] " + eventName);
         }
-        else if (eventName.equals("ErrorOccurred")) {
+        if (eventName.equals("ErrorOccurred")) {
             Integer tmp_error=Integer.valueOf((Integer)params[2]);
             String tmp_message=(String)(params[3]);
             if (tmp_error.equals(error_NETWORK_GENERAL)) {
@@ -490,14 +490,19 @@ public class SensorUnitConfiguration extends Form implements HandlesEventDispatc
                 return true;
             }
             else if (component.equals(btn_device_Find)) {
-                animatorClock.TimerEnabled(true);
                 activity = "";
+                dbg(txt_DeviceName.Text());
                 if (!txt_DeviceName.Text().equals("")) {
+                    animatorClock.TimerEnabled(true);
                     connection_RelayServer.Url(settings.makeGetString("IPv4"));
+                    dbg(settings.makeGetString("IPv4"));
                     lbl_IPv4.Visible(true);
                     txt_IPv4.Visible(true);
                     feedbackBox.Text(messages("<b>"+ui_txt.CONNECTION_SENDING+"</b> " + settings.makeGetString("IPv4")));
                     connection_RelayServer.Get();
+                }
+                else {
+                    notifier_Messages.ShowMessageDialog(ui_txt.MSG_REQUIRE_DEVICE_NAME,ui_txt.MESSAGE_HEADING,ui_txt.BUTTON_OK);
                 }
                 return true;
             }

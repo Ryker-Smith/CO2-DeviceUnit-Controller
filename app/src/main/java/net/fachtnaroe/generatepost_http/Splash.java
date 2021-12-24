@@ -36,13 +36,16 @@ public class Splash extends Form implements HandlesEventDispatching {
         this.Sizing("Responsive");
         this.BackgroundColor(colors.MAIN_BACKGROUND);
         settings = new ProgramSettings(this);
+        settings.startingMessageCountdown=10;
+        settings.showStartingMessage=true;
+        settings.set();
         screen_Splash = new VerticalArrangement(this);
         screen_Splash.WidthPercent(100);
         screen_Splash.HeightPercent(100);
         ticker=new Clock(this);
         statusBar=new StatusBarTools(screen_Splash);
-        notifier_Messages=new Notifier(screen_Splash);
         logoTable = new TableArrangement(screen_Splash);
+        notifier_Messages=new Notifier(screen_Splash);
 
         notifier_Messages.BackgroundColor(colors.WHITE);
         notifier_Messages.TextColor(colors.BUTTON_BACKGROUND);

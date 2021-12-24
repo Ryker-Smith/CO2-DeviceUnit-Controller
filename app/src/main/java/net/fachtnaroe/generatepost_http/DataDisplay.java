@@ -72,7 +72,7 @@ public class DataDisplay extends Form implements HandlesEventDispatching {
         btn_Configuration.Image("image_Cogs.png");
         btn_Configuration.Width(32);
         btn_Configuration.Width(32);
-        pad1.Width(32);
+        pad1.Width(16);
         pad2.Height(32);
         webview_DataDisplay.WidthPercent(100);
         webview_DataDisplay.HeightPercent(80);
@@ -83,8 +83,9 @@ public class DataDisplay extends Form implements HandlesEventDispatching {
         msg_AllOK.WidthPercent(100);
         msg_AllOK.TextColor(colors.MAIN_TEXT);
         msg_AllOK.HTMLFormat(true);
-        msg_AllOK.Text("<h1 style='text-align: center;'>CO<sub>2</sub></h1>");
-
+        String s=settings.buildNumber;
+        msg_AllOK.Text("<h2 style='text-align: center;'>CO<sub>2</sub> Sensor Unit monitor; build #"+s+"</h2>");
+dbg(settings.buildNumber);
         // now, the events the components can respond to
         EventDispatcher.registerEventForDelegation(this, formName, "Click");
         EventDispatcher.registerEventForDelegation(this, formName, "GotText");
