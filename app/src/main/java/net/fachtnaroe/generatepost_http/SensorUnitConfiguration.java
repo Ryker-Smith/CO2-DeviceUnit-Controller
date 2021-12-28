@@ -51,7 +51,6 @@ public class SensorUnitConfiguration extends Form implements HandlesEventDispatc
     boolean d1_isConnected=false;
     boolean d1_attemptingReboot=false;
 
-
     // UI strings for localisation
 
     /* Tá ná dáthanna déanta mar an gcéanna le HTML, ach le FF ar
@@ -87,7 +86,7 @@ public class SensorUnitConfiguration extends Form implements HandlesEventDispatc
     String animatorImageName="button_image_network_activity_?.png";
     int animatorClock_Interval=50;
     int buttonsAndAnimatorSize=48;
-    ProgramSettings settings;
+    ApplicationSettings settings;
 
     protected void $define() {
         /* this next allows the app to use the full screen. In fact,
@@ -97,9 +96,10 @@ public class SensorUnitConfiguration extends Form implements HandlesEventDispatc
         /* Cur seo isteach. Is cuma cén focal atá ann, níl gá leis */
         this.Sizing("Responsive");
         this.BackgroundColor(colors.MAIN_BACKGROUND);
-        settings = new ProgramSettings(this);
+        settings = new ApplicationSettings(this);
         if (!settings.get()) {
             // if there are no settings, write blanks
+            dbg("No settings");
             settings.set();
         }
 //        Form a = this;
@@ -247,6 +247,9 @@ public class SensorUnitConfiguration extends Form implements HandlesEventDispatc
         txt_DeviceName.Visible(true);
         txt_DeviceName.WidthPercent(100);
         txt_DeviceName.Hint(ui_txt.HINT_DEVICE_NAME);
+        if (!settings.DEVICE_NAME.equals("")) {
+            txt_DeviceName.Text(settings.DEVICE_NAME);
+        }
         lbl_IPv4.Row(1);
         lbl_IPv4.Column(0);
         lbl_IPv4.FontSize(size_FONT_LABELS_TEXT);
@@ -494,6 +497,7 @@ public class SensorUnitConfiguration extends Form implements HandlesEventDispatc
                 dbg(txt_DeviceName.Text());
                 if (!txt_DeviceName.Text().equals("")) {
                     animatorClock.TimerEnabled(true);
+                    settings.DEVICE_NAME=txt_DeviceName.Text();
                     connection_RelayServer.Url(settings.makeGetString("IPv4"));
                     dbg(settings.makeGetString("IPv4"));
                     lbl_IPv4.Visible(true);

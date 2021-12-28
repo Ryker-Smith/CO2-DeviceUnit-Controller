@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="">
+  <head>
+    <meta charset="utf-8">
+    <title></title>
+    <style>
+    *{
+      border: none;
+      padding: none;
+      margin: none;
+      color: #bcdeFF;
+    }
+    body {
+      background-color: #477c9b;
+    }
+    h1 {
+      text-align: center;
+    }
+    .middlin{
+      margin-left: auto;
+      margin-right: auto;
+    }
+    .quitebig {
+      font-size: 72px;
+      font-family: fixed;
+      font-color: white;
+    }
+    .normal {
+      font-size: 20px;
+      font-family: Sans Serif;
+      font-color: white;
+    }
+    .quitesmall {
+      font-size: 14px;
+      font-family: Sans Serif;
+      font-color: White;
+    }
+    </style>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script>
+        var tgt='https://t.fachtnaroe.net/qndco2?device=TCFE-CO2-A1-54&sensor=CO2';
+//         tgt="https://t.fachtnaroe.net/qndco2";
+//         tgt="https://google.ie";
+              
+         async function test5() {
+            let myHeaders = new Headers();
+            myHeaders.append('Content-Type', 'application/x-www-form-urlencoded');
+//             myHeaders.append('Origin', 'https://t.fachtnaroe.net/index.html');
+            console.log('A');
+            let r= await fetch(tgt, {
+                        headers : myHeaders,
+                        method : "GET" 
+                })
+                .then(response => { 
+                    console.log('C1');
+                    return response.json();
+                })
+                .then(data => { 
+                    console.log('D1');
+                    document.getElementById('data_id_VALUE').innerHTML=data.value;
+                    document.getElementById('data_id_MEASURES').innerHTML=data.sensor;
+                    document.getElementById('data_id_TIME').innerHTML=data.time;
+                    if (data.sensor == "CO2") {
+                        data.units="ppm";
+                    }
+                    document.getElementById('data_id_UNITS').innerHTML=data.units;
+                    document.getElementById('data_id_DEVICE_NAME').innerHTML=data.device;
+                    console.log('D2');
+                });
+                
+            console.log('B');    
+            document.getElementById('data_id_DEVICE_NAME').innnerHTML=r;
+            console.log(r);
+            console.log('E');    
+            return r;
+        }
+        function testx() {
+           var q=new XMLHttpRequest();
+           q.open("GET", tgt);
+           q.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+           q.onreadystatechange = function() {
+                if (this.readyState == 4 && this.status == 200) {
+                    document.getElementById("data_id_MEASURES").innerHTML = q.responseText;
+                }
+                else {
+                    console.log(this.status);
+                }
+           };
+           q.send();
+        }
+    </script>
+  </head>
+  <body onload="test5();">
+<!--   test5().then(function(value){console.log('G1 '+value);},function(error){console.log('G2 '+error);})"> -->
+<!--   <body onload="test5();"> -->
+  <h1>Sensor Display</h1>
+  <table class="middlin">
+    <tr><td class="sidehead">Device:</td><td class="normal"><span id="data_id_DEVICE_NAME"></span></td></tr>
+    <tr><td class="sidehead">Measuring:</td><td class="normal"><span id="data_id_MEASURES"></span></td></tr>
+    <tr><td class="sidehead">Value:</td><td class="quitebig"><span id="data_id_VALUE"></span></td></tr>
+    <tr><td class="sidehead">Units:</td><td class="normal"><span id="data_id_UNITS"></span></td></tr>
+    <tr><td class="sidehead">At:</td><td class="quitesmall"><span id="data_id_TIME"></span></td></tr>
+  </table>
+  <div id="raw"></div>
+  </body>
+</html>

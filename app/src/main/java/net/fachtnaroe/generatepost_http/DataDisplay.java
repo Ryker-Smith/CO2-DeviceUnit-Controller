@@ -7,7 +7,6 @@ import com.google.appinventor.components.runtime.EventDispatcher;
 import com.google.appinventor.components.runtime.Form;
 import com.google.appinventor.components.runtime.HandlesEventDispatching;
 import com.google.appinventor.components.runtime.HorizontalArrangement;
-import com.google.appinventor.components.runtime.Image;
 import com.google.appinventor.components.runtime.Label;
 import com.google.appinventor.components.runtime.Notifier;
 import com.google.appinventor.components.runtime.VerticalScrollArrangement;
@@ -32,7 +31,7 @@ public class DataDisplay extends Form implements HandlesEventDispatching {
     Notifier notifier_Messages;
     Button btn_Configuration;
     WebViewer webview_DataDisplay;
-    ProgramSettings settings;
+    ApplicationSettings settings;
 
     protected void $define() {
         /* this next allows the app to use the full screen. In fact,
@@ -42,7 +41,7 @@ public class DataDisplay extends Form implements HandlesEventDispatching {
         /* Cur seo isteach. Is cuma cén focal atá ann, níl gá leis */
         this.Sizing("Responsive");
         this.BackgroundColor(colors.MAIN_BACKGROUND);
-        settings = new ProgramSettings(this);
+        settings = new ApplicationSettings(this);
         if (!settings.get()) {
             // if there are no settings, write blanks
             settings.set();
@@ -57,6 +56,7 @@ public class DataDisplay extends Form implements HandlesEventDispatching {
         btn_Configuration =new Button(top);
         Label pad1=new Label(top);
         HorizontalArrangement pad2=new HorizontalArrangement(screen_DataDisplay);
+
         webview_DataDisplay = new WebViewer(screen_DataDisplay);
         connection_toSomewhere=new Web(screen_DataDisplay);
         // now, how every component looks:
@@ -76,8 +76,8 @@ public class DataDisplay extends Form implements HandlesEventDispatching {
         pad2.Height(32);
         webview_DataDisplay.WidthPercent(100);
         webview_DataDisplay.HeightPercent(80);
-        webview_DataDisplay.GoToUrl("file:///android_asset/empty.html");
-
+        webview_DataDisplay.GoToUrl("file:///android_asset/sensorDisplay.html");
+//        webview_DataDisplay.GoToUrl("https://t.fachtnaroe.net/u/qndco2.html");
                 //GoToUrl(getAssets().open("empty.html"));
         msg_AllOK=new Label(screen_DataDisplay);
         msg_AllOK.WidthPercent(100);
@@ -86,6 +86,7 @@ public class DataDisplay extends Form implements HandlesEventDispatching {
         String s=settings.buildNumber;
         msg_AllOK.Text("<h2 style='text-align: center;'>CO<sub>2</sub> Sensor Unit monitor; build #"+s+"</h2>");
 dbg(settings.buildNumber);
+dbg(Integer.toString(BuildConfig.VERSION_CODE));
         // now, the events the components can respond to
         EventDispatcher.registerEventForDelegation(this, formName, "Click");
         EventDispatcher.registerEventForDelegation(this, formName, "GotText");

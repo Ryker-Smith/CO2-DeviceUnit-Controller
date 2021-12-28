@@ -1,5 +1,11 @@
 package net.fachtnaroe.generatepost_http;
 
+import android.app.DownloadManager;
+import android.content.Context;
+import android.net.Uri;
+import android.webkit.MimeTypeMap;
+import android.webkit.URLUtil;
+
 import com.google.appinventor.components.runtime.Clock;
 import com.google.appinventor.components.runtime.Component;
 import com.google.appinventor.components.runtime.EventDispatcher;
@@ -23,7 +29,7 @@ public class Splash extends Form implements HandlesEventDispatching {
 
     Label msg_AllOK;
     Clock ticker;
-    ProgramSettings settings;
+    ApplicationSettings settings;
     Image img_placeHolder;
     Notifier notifier_Messages;
 
@@ -35,10 +41,12 @@ public class Splash extends Form implements HandlesEventDispatching {
         /* Cur seo isteach. Is cuma cén focal atá ann, níl gá leis */
         this.Sizing("Responsive");
         this.BackgroundColor(colors.MAIN_BACKGROUND);
-        settings = new ProgramSettings(this);
-        settings.startingMessageCountdown=10;
+        settings = new ApplicationSettings(this);
+//        settings.startingMessageCountdown=10;
         settings.showStartingMessage=true;
-        settings.set();
+        if (!settings.get()) {
+            // set blanks, maybe?
+        }
         screen_Splash = new VerticalArrangement(this);
         screen_Splash.WidthPercent(100);
         screen_Splash.HeightPercent(100);
@@ -157,6 +165,24 @@ public class Splash extends Form implements HandlesEventDispatching {
             //
         }
         return false;
+    }
+
+    public void myDownload(String myURL, String title, String year, String branch, String section) {
+
+        DownloadManager.Request request = new DownloadManager.Request(Uri.parse(myURL));
+        request.setTitle("File Download");
+        request.setDescription("Downloading....");
+
+        //request.setAllowedNetworkTypes(DownloadManager.Request.NETWORK_WIFI);
+        request.allowScanningByMediaScanner();
+        //request.setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED);
+        request.setNotificationVisibility(DownloadManager.Request.VISIBILITY_HIDDEN);
+        String nameOfFile = URLUtil.guessFileName(myURL, null, MimeTypeMap.getFileExtensionFromUrl(myURL));
+
+        //request.setDestinationInExternalPublicDir(Environment.getExternalStorageDirectory().getPath() + "/KiiTTimeTableData/" + year + "/" + branch + "/" + section + "/", nameOfFile);
+        request.setDestinationInExternalPublicDir("//" + section + "/", nameOfFile);
+        DownloadManager manager = (DownloadManager) this.getSystemService(Context.DOWNLOAD_SERVICE);
+        manager.enqueue(request);
     }
 }
 // Here be monsters:

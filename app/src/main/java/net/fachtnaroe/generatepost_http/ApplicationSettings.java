@@ -3,16 +3,16 @@ package net.fachtnaroe.generatepost_http;
 import com.google.appinventor.components.runtime.ComponentContainer;
 import com.google.appinventor.components.runtime.TinyDB;
 
-import static net.fachtnaroe.generatepost_http.GeneralApplicationSettings.EXTERNALLY_STORED_1;
+import static net.fachtnaroe.generatepost_http.PrivateApplicationSettings.EXTERNALLY_STORED_1;
 
-public class ProgramSettings {
+public class ApplicationSettings {
 
     public static final String URL_MAIN = EXTERNALLY_STORED_1;
     // the buildNumber can be generated automatically. Look in build.gradle to see how
     public final String buildNumber=Integer.toString(BuildConfig.VERSION_CODE);
     //    public final String versionName=BuildConfig.VERSION_NAME;
-    public String DEVICE_NAME="";
-    public String localIPv4="";
+    public String DEVICE_NAME=new String();
+    public String localIPv4="0.0.0.0";
     public Boolean showStartingMessage=true;
     public Integer startingMessageCountdown=5;
     TinyDB localDB;
@@ -27,7 +27,7 @@ public class ProgramSettings {
     // providing a NAME_DEFAULT_DEVICE saves on testing/debugging time
 //    public static final String default_DEVICE_NAME ="TCFE-CO2-98-88";
 
-    public ProgramSettings(ComponentContainer screenName){
+    public ApplicationSettings(ComponentContainer screenName){
         localDB= new TinyDB(screenName);
     }
 
