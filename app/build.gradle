@@ -6,7 +6,7 @@ android {
     compileSdk 31
 
     def versionPropsFile = file('version.properties')
-    def Properties versionProps = new Properties()
+    Properties versionProps = new Properties()
 
     if (versionPropsFile.canRead()) {
         versionProps.load(new FileInputStream(versionPropsFile))
@@ -22,8 +22,8 @@ android {
         applicationId "net.fachtnaroe.generatepost_http"
         minSdk 26
         targetSdk 31
-        versionCode 1
-        versionName "1.0"
+        versionCode code
+        versionName "0."+code
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }

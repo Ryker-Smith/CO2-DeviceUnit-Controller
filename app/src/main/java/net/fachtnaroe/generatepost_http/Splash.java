@@ -59,7 +59,6 @@ public class Splash extends Form implements HandlesEventDispatching {
         notifier_Messages.TextColor(colors.BUTTON_BACKGROUND);
         logoTable.Rows(3);
         logoTable.Columns(3);
-//        statusBar.BGTransparentColor("#00000000");
         statusBar.BackgroundColor(colors.withoutTransparencyValue(colors.MAIN_BACKGROUND));
         logoTable.WidthPercent(100);
         logoTable.HeightPercent(100);
@@ -87,7 +86,6 @@ public class Splash extends Form implements HandlesEventDispatching {
         bot.Row(2);
 
         ticker.TimerInterval(value_TICKER_SPLASH_DELAY);
-//        ticker.TimerAlwaysFires(false);
         ticker.TimerEnabled(true);
         // now, the events the components can respond to
         EventDispatcher.registerEventForDelegation(this, formName, "AfterChoosing");
@@ -102,30 +100,30 @@ public class Splash extends Form implements HandlesEventDispatching {
             if (component.equals(ticker)) {
                 // turn off the timer while the event is being processed
                 ticker.TimerEnabled(false);
-                // process whatever the timer is for ...
                 if (settings.get()) {
-                    if (settings.startingMessageCountdown>0) {
-                        notifier_Messages.ShowTextDialog(ui_txt.DISCLAIMER, ui_txt.MESSAGE_HEADING, false);
+                    if (settings.configurationStatus < 0) {
+                        // not configured, must connect to device via configuration screen
+                        EventDispatcher.registerEventForDelegation(this, formName, "OtherScreenClosed");
+                        switchForm("SensorUnitConfiguration");
+
                         return true;
                     }
                     else {
-                        if (settings.showStartingMessage) {
-                           //                        notifier_Messages.ShowTextDialog(ui_txt.DISCLAIMER,ui_txt.MESSAGE_HEADING,false);
-                            notifier_Messages.ShowChooseDialog(ui_txt.DISCLAIMER, ui_txt.MESSAGE_HEADING, ui_txt.BUTTON_OK, ui_txt.NO_SHOW_AGAIN, false);
-//                            notifier_Messages.ShowMessageDialog(ui_txt.DISCLAIMER, ui_txt.MESSAGE_HEADING, ui_txt.BUTTON_OK);
+                        if (settings.startingMessageCountdown > 0) {
+                            notifier_Messages.ShowTextDialog(ui_txt.DISCLAIMER, ui_txt.MESSAGE_HEADING, false);
                             return true;
-                        }
-                        else {
-                            switchForm("DataDisplay");
-                            this.finish();
-                            return true;
+                        } else {
+                            if (settings.showStartingMessage) {
+                                notifier_Messages.ShowChooseDialog(ui_txt.DISCLAIMER, ui_txt.MESSAGE_HEADING, ui_txt.BUTTON_OK, ui_txt.NO_SHOW_AGAIN, false);
+                                return true;
+                            } else {
+                                switchForm("DataDisplay");
+                                this.finish();
+                                return true;
+                            }
                         }
                     }
                 }
-//                switchForm("DataDisplay");
-                // turn the timer back on after the event is processed.
-//                ticker.TimerEnabled(true);
-                // yeah, I turned it off and then back on again. But that's important, as ticks can collide
                 return true;
             }
         }
@@ -145,6 +143,13 @@ public class Splash extends Form implements HandlesEventDispatching {
             switchFormWithStartValue("DataDisplay",null);
             this.finish();
             return true;
+        }
+        else if (eventName.equals("OtherScreenClosed")) {
+            // we should only get here if a previously-unconfigured program has returned.
+            settings.get();
+            // try to get back on the work-flow path. Just re-enable Timer,
+            // and let existing code do what's necessary.
+            ticker.TimerEnabled(true);
         }
         return false;
     }

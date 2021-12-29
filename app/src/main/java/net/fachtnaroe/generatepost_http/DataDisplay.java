@@ -50,23 +50,23 @@ public class DataDisplay extends Form implements HandlesEventDispatching {
             switchFormWithStartValue("SensorUnitConfiguration",null);
         }
 
-        // each component, listed in order
+        // create each component, listed in order
         screen_DataDisplay = new VerticalScrollArrangement(this);
         statusBar=new StatusBarTools(screen_DataDisplay);
         HorizontalArrangement top = new HorizontalArrangement(screen_DataDisplay);
         btn_Configuration =new Button(top);
         Label pad1=new Label(top);
         HorizontalArrangement pad2=new HorizontalArrangement(screen_DataDisplay);
-
         webview_DataDisplay = new WebViewer(screen_DataDisplay);
         connection_toSomewhere=new Web(screen_DataDisplay);
+
         // now, how every component looks:
         statusBar.BackgroundColor(colors.withoutTransparencyValue(colors.MAIN_BACKGROUND));
+        screen_DataDisplay.BackgroundColor(colors.MAIN_BACKGROUND);
         screen_DataDisplay.WidthPercent(100);
         screen_DataDisplay.HeightPercent(100);
         screen_DataDisplay.AlignHorizontal(Component.ALIGNMENT_NORMAL);
         screen_DataDisplay.AlignVertical(Component.ALIGNMENT_CENTER);
-        screen_DataDisplay.BackgroundColor(colors.MAIN_BACKGROUND);
         top.WidthPercent(100);
         top.Height(32);
         top.AlignHorizontal(Component.ALIGNMENT_OPPOSITE);
@@ -86,9 +86,10 @@ public class DataDisplay extends Form implements HandlesEventDispatching {
         msg_AllOK.TextColor(colors.MAIN_TEXT);
         msg_AllOK.HTMLFormat(true);
         String s=Integer.toString(BuildConfig.VERSION_CODE);//settings.buildNumber;
-        msg_AllOK.Text("<h2 style='text-align: center;'>CO<sub>2</sub> Sensor Unit monitor; build #"+s+"</h2>");
+        msg_AllOK.Text("<h2 style='text-align: center;'>CO<sub>2</sub> Sensor Unit monitor; build #"+BuildConfig.VERSION_CODE+"</h2>");
         dbg(settings.buildNumber);
         dbg(Integer.toString(BuildConfig.VERSION_CODE));
+        dbg(BuildConfig.VERSION_NAME);
         // now, the events the components can respond to
         EventDispatcher.registerEventForDelegation(this, formName, "Click");
         EventDispatcher.registerEventForDelegation(this, formName, "GotText");
@@ -96,8 +97,13 @@ public class DataDisplay extends Form implements HandlesEventDispatching {
         EventDispatcher.registerEventForDelegation(this, formName, "TimedOut"); // for network
         EventDispatcher.registerEventForDelegation(this, formName, "Timer"); // for updates
         EventDispatcher.registerEventForDelegation(this, formName, "OtherScreenClosed"); // for updates
-        ticker.TimerInterval(value_TICKER_INTERVAL);
-        ticker.TimerEnabled(true);
+        if (settings.configurationStatus < 0) {
+            switchFormWithStartValue("SensorUnitConfiguration",null);
+        }
+        else {
+            ticker.TimerInterval(value_TICKER_INTERVAL);
+            ticker.TimerEnabled(true);
+        }
     }
 
     @Override
@@ -106,14 +112,13 @@ public class DataDisplay extends Form implements HandlesEventDispatching {
         dbg("dispatchEvent: " + formName + " [" +component.toString() + "] [" + componentName + "] " + eventName);
         if (eventName.equals("OtherScreenClosed")) {
             // when the settings screen closes, re-read the settings db
-            settings.get();
+//            settings.get();
             this.recreate();
             return true;
         }
         else if (eventName.equals("BackPressed")) {
             // this would be a great place to do something useful, if not
             // then we've captured the BackPress operation(?) to ignore it
-
             return true;
         }
         else if (eventName.equals("Timer")) {

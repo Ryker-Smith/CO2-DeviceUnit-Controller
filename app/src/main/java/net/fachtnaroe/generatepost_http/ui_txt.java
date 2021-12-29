@@ -36,4 +36,5 @@ class ui_txt {
     static final String DISCLAIMER="This App is offered without any medical or any other guarantee.<br><br>Use this at your own risk, and always use your own best judgement as to what is safe.";
     static final String HINT_DEVICE_NAME="Name of the CO2 unit";
     static final String MSG_REQUIRE_DEVICE_NAME="Please provide the name of the CO2 Sensor Unit.<br><br>That's the same as the name of the device Wi-Fi hot-spot the Unit created to allow you to provide details of your local Wi-Fi network.";
+    static final String WARN_DANGER = "Danger";
 }

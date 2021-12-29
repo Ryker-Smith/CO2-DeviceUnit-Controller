@@ -60,6 +60,7 @@ public class ApplicationSettings {
             return false;
         }
     }
+
     String makeGetString(String sensor){
         String test1 = this.URL_MAIN+"?device=";
         test1+= DEVICE_NAME;

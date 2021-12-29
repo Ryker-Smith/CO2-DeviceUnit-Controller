@@ -28,10 +28,11 @@ public class SensorUnitConfiguration extends Form implements HandlesEventDispatc
     private
     VerticalScrollArrangement screen_SensorUnitConfiguration;
     StatusBarTools statusBar;
-    HorizontalArrangement fiddlyTopBits, horz_ActivityOrRestart;
+    HorizontalArrangement fiddlyTopBits, horz_ActivityOrRestart, horz_warning;
     TextBox txt_SSID, txt_DeviceName, txt_IPv4, txt_active;
     PasswordTextBox txt_PSK;
     Label lbl_SSID, lbl_PSK, lbl_DeviceName, lbl_IPv4;
+    Button lbl_Warning;
     Button btn_device_Configure, btn_device_Find, btn_device_ConnectionTest, btn_Home, btn_Restart;
     Web connection_SensorUnit, connection_RelayServer, connection_TestLocal;
     Label feedbackBox;
@@ -143,7 +144,10 @@ public class SensorUnitConfiguration extends Form implements HandlesEventDispatc
         feedbackBox = new Label(screen_SensorUnitConfiguration);
         btn_device_Find = new Button(screen_SensorUnitConfiguration);
         btn_device_ConnectionTest = new Button(screen_SensorUnitConfiguration);
-        btn_device_Configure = new Button(screen_SensorUnitConfiguration);
+        horz_warning = new HorizontalArrangement(screen_SensorUnitConfiguration);
+        lbl_Warning=new Button(horz_warning);
+        btn_device_Configure = new Button(horz_warning);
+
         connection_SensorUnit = new Web(screen_SensorUnitConfiguration);
         connection_RelayServer = new Web(screen_SensorUnitConfiguration);
         connection_TestLocal = new Web(screen_SensorUnitConfiguration);
@@ -300,7 +304,7 @@ public class SensorUnitConfiguration extends Form implements HandlesEventDispatc
         btn_Restart.TextAlignment(Component.ALIGNMENT_CENTER);
 
         feedbackBox.WidthPercent(100);
-        feedbackBox.HeightPercent(30);
+        feedbackBox.HeightPercent(28);
         feedbackBox.HTMLFormat(true);
         feedbackBox.FontSize(size_FONT_LABELS_TEXT);
         feedbackBox.FontTypeface(font_NUMBER_FIXED);
@@ -322,6 +326,16 @@ public class SensorUnitConfiguration extends Form implements HandlesEventDispatc
         btn_device_ConnectionTest.BackgroundColor(colors.BUTTON_BACKGROUND);
         btn_device_ConnectionTest.TextColor(colors.WHITE);
         btn_device_ConnectionTest.Visible(false);
+//        lbl_Warning_Outside?
+        lbl_Warning.BackgroundColor(colors.RED);
+        lbl_Warning.TextColor(colors.WHITE);
+        lbl_Warning.WidthPercent(0);
+        lbl_Warning.Text(ui_txt.WARN_DANGER);
+        lbl_Warning.FontSize(size_FONT_LABELS_TEXT);
+        lbl_Warning.FontTypeface(font_NUMBER_DEFAULT);
+        lbl_Warning.Visible(false);
+        lbl_Warning.Height( btn_device_Configure.Height() );
+        lbl_Warning.TextAlignment(Component.ALIGNMENT_CENTER);
         btn_device_Configure.Text(ui_txt.READ_DEVICE);
         btn_device_Configure.FontSize(size_FONT_LABELS_TEXT);
         btn_device_Configure.FontTypeface(font_NUMBER_DEFAULT);
@@ -329,7 +343,6 @@ public class SensorUnitConfiguration extends Form implements HandlesEventDispatc
         btn_device_Configure.BackgroundColor(colors.BUTTON_BACKGROUND);
         btn_device_Configure.TextColor(colors.WHITE);
         btn_device_Configure.Visible(false);
-
         notifier_Messages.BackgroundColor(colors.WHITE);
         notifier_Messages.TextColor(colors.BUTTON_BACKGROUND);
 
@@ -353,7 +366,11 @@ public class SensorUnitConfiguration extends Form implements HandlesEventDispatc
         if (!component.equals(animatorClock)) {
             dbg("dispatchEvent: " + formName + " [" + component.toString() + "] [" + componentName + "] " + eventName);
         }
-        if (eventName.equals("ErrorOccurred")) {
+        if (eventName.equals("BackPressed")) {
+            this.finish();
+            return true;
+        }
+        else if (eventName.equals("ErrorOccurred")) {
             Integer tmp_error=Integer.valueOf((Integer)params[2]);
             String tmp_message=(String)(params[3]);
             if (tmp_error.equals(error_NETWORK_GENERAL)) {
@@ -526,6 +543,9 @@ public class SensorUnitConfiguration extends Form implements HandlesEventDispatc
                     activity="";
                     connection_SensorUnit.Url( config_Proto + txt_IPv4.Text() + config_Port + config_Read);
                     connection_SensorUnit.Get();
+                    lbl_Warning.Visible(true);
+                    lbl_Warning.WidthPercent(25);
+                    lbl_Warning.Height( btn_device_Configure.Height() );
                 }
                 return true;
             }
@@ -603,7 +623,10 @@ public class SensorUnitConfiguration extends Form implements HandlesEventDispatc
         txt_Attempts.Text("0");
         btn_device_ConnectionTest.Visible(true);
         btn_device_Configure.Text(ui_txt.READ_DEVICE);
+        btn_device_Configure.WidthPercent(100);
         btn_device_Configure.Visible(false);
+        lbl_Warning.WidthPercent(0);
+        lbl_Warning.Visible(false);
     }
 
     String messages(String addition) {
@@ -621,9 +644,12 @@ public class SensorUnitConfiguration extends Form implements HandlesEventDispatc
             if (c.equals(connection_SensorUnit) && (d1_ModeWrite)) {
                 // if we're in write mode, a 200 is success, and all the unit will offer
                 notifier_Messages.ShowMessageDialog(ui_txt.NEXT_REBOOT_FOR_CHANGES, ui_txt.MESSAGE_HEADING, ui_txt.BUTTON_OK);
-                btn_device_Configure.Text(ui_txt.READ_DEVICE);
-                d1_ModeWrite = !d1_ModeWrite;
                 activity="";
+                d1_ModeWrite = !d1_ModeWrite;
+                lbl_Warning.Visible(false);
+                lbl_Warning.WidthPercent(25);
+                btn_device_Configure.Text(ui_txt.READ_DEVICE);
+                btn_device_Configure.WidthPercent(100);
                 feedbackBox.Text(messages("<b>"+ui_txt.WRITE_SUCCESS+"</b>"));
             }
             else if (c.equals(connection_TestLocal) && (d1_isConnected)) {
@@ -657,7 +683,7 @@ public class SensorUnitConfiguration extends Form implements HandlesEventDispatc
                                 // Good to go to configuration of settings now.
                                 dbg(ui_txt.CONNECTION_SUCCESS);
                                 activity = "";
-                                feedbackBox.HeightPercent(30);
+//                                feedbackBox.HeightPercent(30);
                                 feedbackBox.Text(messages("<b>" + ui_txt.CONNECTION_SUCCESS + ".</b>"));
                                 txt_IPv4.TextColor(colors.SUCCESS_GREEN);
                                 txt_IPv4.FontBold(true);
@@ -667,6 +693,8 @@ public class SensorUnitConfiguration extends Form implements HandlesEventDispatc
                                 settings.set();
                                 enlargeTable();
                                 d1_isConnected=true;
+
+                                horz_warning.Visible(true);
                                 btn_device_Configure.Visible(true);
                             } else {
                                 // things should get _this_ bad.
@@ -681,7 +709,17 @@ public class SensorUnitConfiguration extends Form implements HandlesEventDispatc
                         // On the off-chance there's another on the network, or data error
                         boolean a = (txt_DeviceName.Text().compareTo(parser.getString("config_DeviceName")) == 0);
                         if (a) {
+                                // yes, the device_name specified matches ours
                                 dbg(ui_txt.READ_SUCCESS);
+                                btn_device_Configure.WidthPercent(75);
+                                lbl_Warning.WidthPercent(25);
+                                lbl_Warning.Visible(true);
+                                lbl_Warning.Enabled(false);
+                                btn_device_Configure.Text(ui_txt.WRITE_DEVICE);
+                                lbl_Warning.BackgroundColor(colors.RED);
+//                                lbl_Warning.HTMLFormat(true);
+                                lbl_Warning.Text(ui_txt.WARN_DANGER);
+                                lbl_Warning.TextColor(colors.WHITE);
                                 activity = "";
                                 feedbackBox.Text(messages("<b>" + ui_txt.READ_SUCCESS + ".</b>"));
                                 txt_IPv4.TextColor(colors.BLACK);
@@ -710,7 +748,7 @@ public class SensorUnitConfiguration extends Form implements HandlesEventDispatc
                                         spin_Active.SelectionIndex(i + 1);
                                     }
                                 }
-                                btn_device_Configure.Text(ui_txt.WRITE_DEVICE);
+                                // re-show the "Warning"
                                 txt_DeviceName.Enabled(false); // changing the device name is a bad idea
                                 d1_ModeWrite = !d1_ModeWrite;
                             } else {
