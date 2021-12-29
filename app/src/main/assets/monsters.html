@@ -1,0 +1,117 @@
+//                         mode : "no-cors",
+
+//                     var res=response.json().value;
+//                     console.log(res.value);
+//                     document.getElementById('data_id_VALUE').innerHTML=res.value;
+//                     console.log('C2');
+
+
+        function test3() {
+//             setInterval(function () { test2()}, 2000);
+            var i=setTimeout(function () {
+              test2();
+            }, 1000);
+        }
+        
+        function test4() {
+            $.get(tgt, function(data,status){
+                console.log(data);
+                console.log(status);
+            }
+            )
+        }
+        async function test2() {
+            console.log('A');
+            let response = await fetch(tgt, {mode : "no-cors"} );
+            if (response.status === 200) {
+                console.log(Object.keys(response));
+                let data = await response.text();
+                console.log("C "+data);
+            }
+            else {
+                console.log('D');
+                console.log(Object.getOwnPropertyNames(response));
+                console.log(response.status);
+            }
+            console.log('B');    
+        }
+        async function test1() {
+            let myHeaders = new Headers();
+            myHeaders.append('Content-Type', 'text/plain');
+            myHeaders.append('Origin', 'https://t.fachtnaroe.net/index.html');
+            console.log('A');
+            let r= await  fetch(tgt, {
+                        mode : "no-cors",
+                        headers : myHeaders,
+                        method : "GET" 
+                })
+                .then(response => { 
+                    console.log('C1');
+                    console.log(response.text());
+                    console.log('C2');
+                })
+                .then(data => { 
+                    console.log('D1');
+                    console.log(data);
+                    console.log('D2');
+                })
+                .fulf
+                
+                ;
+            console.log('B');    
+        }
+        
+        
+        function getSensor() {
+        fetch('https://fachtnaroe.net',
+        {
+//           method : "GET",
+          mode : "no-cors"
+        })
+         .then(response => {
+            const contentType = response.headers.get('content-type');
+            console.log(contentType);
+            if (!contentType || !contentType.includes('application/json')) {
+                throw new TypeError("Oops, we haven't got JSON!");
+            }
+            return response.json();
+        })
+        .then(data => {
+        /* process your data further */
+        })
+        .catch(error => console.error(error));
+        }
+
+//       async function getSensor() {
+//         await fetch('https://t.fachtnaroe.net/qndco2?device=TCFE-CO2-A1-54&sensor=IPv4',
+//         {
+//           method : "GET",
+//           mode : "no-cors"
+//         })
+//         .then(response => {
+//                 await response.json()
+//                 .then(data => console.log(data))
+//                 .catch (
+//                         e => {
+//                             console.log(e);
+//                             console.log(data);
+//                             }
+//                     )
+//         })
+//         .catch(e => console.log(data));
+//       }
+//         let response=await fetch("https://t.fachtnaroe.net/qndco2?device=TCFE-CO2-A1-54&sensor=IPv4",
+//         {
+//           method : "GET",
+//           mode : "no-cors"
+//         });
+//         console.log(response.status);
+//         console.log(response.statusText);
+//         let data = await response.text();
+//         let j=await data.json;
+//         console.log(j);
+//         .then (response => {
+//               response.text()
+//               .then(data => console.log(data))
+//         })
+//       }

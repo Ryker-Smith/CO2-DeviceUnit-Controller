@@ -404,7 +404,7 @@ public class SensorUnitConfiguration extends Form implements HandlesEventDispatc
                 // turn off the timer while the event is being processed
                 ticker.TimerEnabled(false);
                 // process whatever the timer is for ...
-//                dbg("ticker has ticked");
+
                 // turn the timer back on after the event is processed.
                 ticker.TimerEnabled(true);
                 // yeah, I turned it off and then back on again. But that's important, as ticks can collide
@@ -663,6 +663,7 @@ public class SensorUnitConfiguration extends Form implements HandlesEventDispatc
                                 txt_IPv4.FontBold(true);
                                 settings.DEVICE_NAME=txt_DeviceName.Text();
                                 settings.localIPv4=txt_IPv4.Text();
+                                settings.configurationStatus=1;
                                 settings.set();
                                 enlargeTable();
                                 d1_isConnected=true;

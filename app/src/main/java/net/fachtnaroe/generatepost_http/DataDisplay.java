@@ -32,6 +32,7 @@ public class DataDisplay extends Form implements HandlesEventDispatching {
     Button btn_Configuration;
     WebViewer webview_DataDisplay;
     ApplicationSettings settings;
+    String DataDisplayHTML="file:///android_asset/sensorDisplay.html";
 
     protected void $define() {
         /* this next allows the app to use the full screen. In fact,
@@ -73,20 +74,21 @@ public class DataDisplay extends Form implements HandlesEventDispatching {
         btn_Configuration.Width(32);
         btn_Configuration.Width(32);
         pad1.Width(16);
-        pad2.Height(32);
+        pad2.Height(16);
         webview_DataDisplay.WidthPercent(100);
-        webview_DataDisplay.HeightPercent(80);
-        webview_DataDisplay.GoToUrl("file:///android_asset/sensorDisplay.html");
-//        webview_DataDisplay.GoToUrl("https://t.fachtnaroe.net/u/qndco2.html");
-                //GoToUrl(getAssets().open("empty.html"));
+        webview_DataDisplay.HeightPercent(85);
+        if(settings.configurationStatus > 0){
+            DataDisplayHTML = DataDisplayHTML + "?device_name=" + settings.DEVICE_NAME;
+        }
+        webview_DataDisplay.GoToUrl(DataDisplayHTML);
         msg_AllOK=new Label(screen_DataDisplay);
         msg_AllOK.WidthPercent(100);
         msg_AllOK.TextColor(colors.MAIN_TEXT);
         msg_AllOK.HTMLFormat(true);
-        String s=settings.buildNumber;
+        String s=Integer.toString(BuildConfig.VERSION_CODE);//settings.buildNumber;
         msg_AllOK.Text("<h2 style='text-align: center;'>CO<sub>2</sub> Sensor Unit monitor; build #"+s+"</h2>");
-dbg(settings.buildNumber);
-dbg(Integer.toString(BuildConfig.VERSION_CODE));
+        dbg(settings.buildNumber);
+        dbg(Integer.toString(BuildConfig.VERSION_CODE));
         // now, the events the components can respond to
         EventDispatcher.registerEventForDelegation(this, formName, "Click");
         EventDispatcher.registerEventForDelegation(this, formName, "GotText");
@@ -105,9 +107,9 @@ dbg(Integer.toString(BuildConfig.VERSION_CODE));
         if (eventName.equals("OtherScreenClosed")) {
             // when the settings screen closes, re-read the settings db
             settings.get();
+            this.recreate();
             return true;
         }
-
         else if (eventName.equals("BackPressed")) {
             // this would be a great place to do something useful, if not
             // then we've captured the BackPress operation(?) to ignore it

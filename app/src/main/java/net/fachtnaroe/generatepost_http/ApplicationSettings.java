@@ -15,6 +15,7 @@ public class ApplicationSettings {
     public String localIPv4="0.0.0.0";
     public Boolean showStartingMessage=true;
     public Integer startingMessageCountdown=5;
+    public Integer configurationStatus=-1;
     TinyDB localDB;
     // not saved into local DB:
     public String WIFI_PSK = "";
@@ -24,6 +25,7 @@ public class ApplicationSettings {
     private static final String str_localIPv4="localIPv4";
     private static final String str_showStartingMessage="showStartingMessage";
     private static final String str_startingMessageCountdown="WhatALongWindedWayOfDoingThis";
+    private static final String str_configurationStatus="configurationStatus";
     // providing a NAME_DEFAULT_DEVICE saves on testing/debugging time
 //    public static final String default_DEVICE_NAME ="TCFE-CO2-98-88";
 
@@ -37,6 +39,7 @@ public class ApplicationSettings {
             localIPv4 = (String) localDB.GetValue(str_localIPv4, localIPv4);
             showStartingMessage=(boolean) localDB.GetValue(str_showStartingMessage,showStartingMessage);
             startingMessageCountdown=(Integer) localDB.GetValue(str_startingMessageCountdown,startingMessageCountdown);
+            configurationStatus=(Integer) localDB.GetValue(str_configurationStatus, configurationStatus);
             return true;
         }
         catch (Exception e) {
@@ -50,6 +53,7 @@ public class ApplicationSettings {
             localDB.StoreValue(str_localIPv4, localIPv4);
             localDB.StoreValue(str_showStartingMessage, showStartingMessage);
             localDB.StoreValue(str_startingMessageCountdown,startingMessageCountdown);
+            localDB.StoreValue(str_configurationStatus, configurationStatus);
             return true;
         }
         catch (Exception e) {

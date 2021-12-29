@@ -4,7 +4,7 @@
     <meta charset="utf-8">
     <title></title>
     <style>
-    *{
+    * {
       border: none;
       padding: none;
       margin: none;
@@ -12,6 +12,9 @@
     }
     body {
       background-color: #477c9b;
+<!--      height: 98vh;-->
+<!--      border-top: 1px solid black;-->
+<!--      border-bottom: 1px solid black;-->
     }
     h1 {
       text-align: center;
@@ -36,63 +39,58 @@
       font-color: White;
     }
     </style>
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+<!--    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>-->
     <script>
-        var tgt='https://t.fachtnaroe.net/qndco2?device=TCFE-CO2-A1-54&sensor=CO2';
-//         tgt="https://t.fachtnaroe.net/qndco2";
-//         tgt="https://google.ie";
-              
-         async function test5() {
+          // temporarily hard-coded:
+          var tgt='https://t.fachtnaroe.net/qndco2?sensor=CO2';
+          async function fetchWithPromise(dn) {
             let myHeaders = new Headers();
             myHeaders.append('Content-Type', 'application/x-www-form-urlencoded');
-//             myHeaders.append('Origin', 'https://t.fachtnaroe.net/index.html');
-            console.log('A');
-            let r= await fetch(tgt, {
+            tgt = tgt+"&device="+dn;
+            let fwp= await fetch(tgt, {
+                        // the promise yields a response ...
                         headers : myHeaders,
                         method : "GET" 
                 })
-                .then(response => { 
-                    console.log('C1');
+                .then(response => {
+                    // ... and the response is processed for the JSON data ...
                     return response.json();
                 })
-                .then(data => { 
-                    console.log('D1');
-                    document.getElementById('data_id_VALUE').innerHTML=data.value;
+                .then(data => {
+                    // ... which can now be used.
+                    document.getElementById('data_id_DEVICE_NAME').innerHTML=data.device;
                     document.getElementById('data_id_MEASURES').innerHTML=data.sensor;
-                    document.getElementById('data_id_TIME').innerHTML=data.time;
+                    document.getElementById('data_id_VALUE').innerHTML=data.value;
+                    // this should really be provided by the server
                     if (data.sensor == "CO2") {
                         data.units="ppm";
                     }
                     document.getElementById('data_id_UNITS').innerHTML=data.units;
-                    document.getElementById('data_id_DEVICE_NAME').innerHTML=data.device;
-                    console.log('D2');
+                    document.getElementById('data_id_TIME').innerHTML=data.time;
                 });
                 
-            console.log('B');    
-            document.getElementById('data_id_DEVICE_NAME').innnerHTML=r;
-            console.log(r);
-            console.log('E');    
-            return r;
+            // document.getElementById('data_id_DEVICE_NAME').innnerHTML=fwp;
+            // return the promise ... until.
+            return fwp;
         }
-        function testx() {
-           var q=new XMLHttpRequest();
-           q.open("GET", tgt);
-           q.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
-           q.onreadystatechange = function() {
+        // alternative methodology:
+        function getWithXMLRequest() {
+           var gwx=new XMLHttpRequest();
+           gwx.open("GET", tgt);
+           gwx.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+           gwx.onreadystatechange = function() {
                 if (this.readyState == 4 && this.status == 200) {
-                    document.getElementById("data_id_MEASURES").innerHTML = q.responseText;
+                    document.getElementById("data_id_MEASURES").innerHTML = gwx.responseText;
                 }
                 else {
                     console.log(this.status);
                 }
            };
-           q.send();
+           gwx.send();
         }
     </script>
   </head>
-  <body onload="test5();">
-<!--   test5().then(function(value){console.log('G1 '+value);},function(error){console.log('G2 '+error);})"> -->
-<!--   <body onload="test5();"> -->
+  <body>
   <h1>Sensor Display</h1>
   <table class="middlin">
     <tr><td class="sidehead">Device:</td><td class="normal"><span id="data_id_DEVICE_NAME"></span></td></tr>
@@ -103,4 +101,11 @@
   </table>
   <div id="raw"></div>
   </body>
+<script>
+  var url_string = window.location.href;
+  var url = new URL(url_string);
+  var c = url.searchParams.get("device_name");
+  document.onload=fetchWithPromise(c);
+  var i=setInterval(fetchWithPromise,60000,c);
+</script>
 </html>
