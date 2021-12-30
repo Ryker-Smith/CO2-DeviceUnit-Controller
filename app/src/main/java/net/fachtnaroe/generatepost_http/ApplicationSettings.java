@@ -14,7 +14,9 @@ public class ApplicationSettings {
     public String DEVICE_NAME=new String();
     public String localIPv4="0.0.0.0";
     public Boolean showStartingMessage=true;
+    // the countdown controls whether the "skip starting message" option is shown.
     public Integer startingMessageCountdown=5;
+    // a general yes/no flag <0 unconfigured, >0 configured
     public Integer configurationStatus=-1;
     TinyDB localDB;
     // not saved into local DB:

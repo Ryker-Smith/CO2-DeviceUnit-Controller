@@ -105,7 +105,6 @@ public class Splash extends Form implements HandlesEventDispatching {
                         // not configured, must connect to device via configuration screen
                         EventDispatcher.registerEventForDelegation(this, formName, "OtherScreenClosed");
                         switchForm("SensorUnitConfiguration");
-
                         return true;
                     }
                     else {

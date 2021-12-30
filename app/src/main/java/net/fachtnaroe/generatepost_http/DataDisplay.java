@@ -112,7 +112,6 @@ public class DataDisplay extends Form implements HandlesEventDispatching {
         dbg("dispatchEvent: " + formName + " [" +component.toString() + "] [" + componentName + "] " + eventName);
         if (eventName.equals("OtherScreenClosed")) {
             // when the settings screen closes, re-read the settings db
-//            settings.get();
             this.recreate();
             return true;
         }
